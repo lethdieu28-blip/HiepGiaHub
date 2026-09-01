@@ -62,19 +62,22 @@ if isFly then bV=C("BodyVelocity",{MaxForce=Vector3.new(1e9,1e9,1e9),Velocity=Ve
 local TPBtn=C("TextButton",{Size=UDim2.new(0.95,0,0,40),Position=UDim2.new(0,0,0,110),Text="Nhận Tool Teleport",TextColor3=Color3.fromRGB(0,210,255),TextSize=15,Font=4,BackgroundColor3=Color3.fromRGB(35,35,42)},P2) C("UICorner",{CornerRadius=UDim.new(0,10)},TPBtn)
 TPBtn.MouseButton1Click:Connect(function() local t=Instance.new("Tool",LocalPlayer.Backpack) t.Name,t.RequiresHandle="TP Tool",false t.Activated:Connect(function() local m,c=LocalPlayer:GetMouse(),LocalPlayer.Character if c and c:FindFirstChild("HumanoidRootPart") and m.Hit then c.HumanoidRootPart.CFrame=CFrame.new(m.Hit.Position+Vector3.new(0,3,0)) end end) TPBtn.Text="Đã thêm TP Tool!" task.wait(1) TPBtn.Text="Nhận Tool Teleport" end)
 
--- TOGGLE SWITCH BẬT/TẮT HỆ THỐNG TRACKER (TRONG TAB FLY & TP)
-local TogFrame=C("Frame",{Size=UDim2.new(0.95,0,0,40),Position=UDim2.new(0,0,0,160),BackgroundColor3=Color3.fromRGB(35,35,42)},P2) C("UICorner",{CornerRadius=UDim.new(0,10)},TogFrame)
-C("TextLabel",{Size=UDim2.new(0.65,0,1,0),Position=UDim2.new(0.04,0,0,0),Text="Enable Player Tracker",TextColor3=Color3.fromRGB(255,255,255),TextSize=14,Font=4,TextXAlignment=0,BackgroundTransparency=1},TogFrame)
+-- ==================== KHUNG TRACKER NẰM NGOÀI MENU (GÓC TRÊN BÊN PHẢI) ====================
+local ExternalTrackerFrame=C("Frame",{Size=UDim2.new(0,210,0,40),Position=UDim2.new(1,-220,0.05,0),BackgroundColor3=Color3.fromRGB(25,25,30)},SG)
+C("UICorner",{CornerRadius=UDim.new(0,10)},ExternalTrackerFrame) C("UIStroke",{Color=Color3.fromRGB(0,170,255),Thickness=1.5},ExternalTrackerFrame) drag(ExternalTrackerFrame)
 
-local SwitchBG=C("Frame",{Size=UDim2.new(0,50,0,24),Position=UDim2.new(1,-60,0.5,-12),BackgroundColor3=Color3.fromRGB(60,60,65)},TogFrame) C("UICorner",{CornerRadius=UDim.new(1,0)},SwitchBG)
-local SwitchCircle=C("Frame",{Size=UDim2.new(0,20,0,20),Position=UDim2.new(0,2,0.5,-10),BackgroundColor3=Color3.fromRGB(200,200,200)},SwitchBG) C("UICorner",{CornerRadius=UDim.new(1,0)},SwitchCircle)
+C("TextLabel",{Size=UDim2.new(0.6,0,1,0),Position=UDim2.new(0.05,0,0,0),Text="Player Tracker",TextColor3=Color3.fromRGB(255,255,255),TextSize=13,Font=4,TextXAlignment=0,BackgroundTransparency=1},ExternalTrackerFrame)
+
+local SwitchBG=C("Frame",{Size=UDim2.new(0,46,0,22),Position=UDim2.new(1,-52,0.5,-11),BackgroundColor3=Color3.fromRGB(60,60,65)},ExternalTrackerFrame) C("UICorner",{CornerRadius=UDim.new(1,0)},SwitchBG)
+local SwitchCircle=C("Frame",{Size=UDim2.new(0,18,0,18),Position=UDim2.new(0,2,0.5,-9),BackgroundColor3=Color3.fromRGB(200,200,200)},SwitchBG) C("UICorner",{CornerRadius=UDim.new(1,0)},SwitchCircle)
 local SwitchClick=C("TextButton",{Size=UDim2.new(1,0,1,0),BackgroundTransparency=1,Text=""},SwitchBG)
 
--- NÚT BẤM MỞ MENU PLAYER TRACKER (MẶC ĐỊNH ẨN)
-local trackToggleBtn=C("TextButton",{Size=UDim2.new(0.95,0,0,40),Position=UDim2.new(0,0,0,210),BackgroundColor3=Color3.fromRGB(0,120,215),TextColor3=Color3.fromRGB(255,255,255),Text="Mở Menu Player Tracker",TextSize=14,Font=Enum.Font.SourceSansBold,Visible=false},P2) C("UICorner",{CornerRadius=UDim.new(0,10)},trackToggleBtn)
+-- NÚT BẤM MỞ MENU PLAYER TRACKER (NẰM DƯỚI NÚT GẠT, ẨN MẶC ĐỊNH)
+local trackToggleBtn=C("TextButton",{Size=UDim2.new(0,210,0,35),Position=UDim2.new(1,-220,0.05,45),BackgroundColor3=Color3.fromRGB(0,120,215),TextColor3=Color3.fromRGB(255,255,255),Text="Mở Danh Sách Tracker",TextSize=13,Font=Enum.Font.SourceSansBold,Visible=false},SG)
+C("UICorner",{CornerRadius=UDim.new(0,8)},trackToggleBtn) C("UIStroke",{Color=Color3.fromRGB(255,255,255),Thickness=1},trackToggleBtn)
 
--- KHUNG HỆ THỐNG TRACKER
-local mainFrame=C("Frame",{Size=UDim2.new(0,240,0,300),Position=UDim2.new(0.5,-120,0.5,-150),BackgroundColor3=Color3.fromRGB(30,30,30),Active=true,Draggable=true,Visible=false},SG)
+-- KHUNG HỆ THỐNG MENU TRACKER (NẰM NGOÀI MENU CHÍNH)
+local mainFrame=C("Frame",{Size=UDim2.new(0,240,0,300),Position=UDim2.new(1,-250,0.05,90),BackgroundColor3=Color3.fromRGB(30,30,30),Active=true,Draggable=true,Visible=false},SG)
 C("UICorner",{CornerRadius=UDim.new(0,10)},mainFrame) C("UIStroke",{Color=Color3.fromRGB(0,170,255),Thickness=1.5},mainFrame)
 
 local title=C("TextLabel",{Size=UDim2.new(1,0,0,35),BackgroundColor3=Color3.fromRGB(45,45,45),Text="PLAYER TRACKER",TextColor3=Color3.fromRGB(255,255,255),TextSize=14,Font=Enum.Font.SourceSansBold},mainFrame)
@@ -89,7 +92,7 @@ C("UICorner",{CornerRadius=UDim.new(0,8)},followBtn)
 local isTrackerEnabled=false
 SwitchClick.MouseButton1Click:Connect(function()
 	isTrackerEnabled=not isTrackerEnabled
-	TS:Create(SwitchCircle,TweenInfo.new(0.2),{Position=isTrackerEnabled and UDim2.new(1,-22,0.5,-10) or UDim2.new(0,2,0.5,-10)}):Play()
+	TS:Create(SwitchCircle,TweenInfo.new(0.2),{Position=isTrackerEnabled and UDim2.new(1,-20,0.5,-9) or UDim2.new(0,2,0.5,-9)}):Play()
 	TS:Create(SwitchBG,TweenInfo.new(0.2),{BackgroundColor3=isTrackerEnabled and Color3.fromRGB(0,170,255) or Color3.fromRGB(60,60,65)}):Play()
 	
 	trackToggleBtn.Visible=isTrackerEnabled
@@ -170,7 +173,7 @@ followBtn.MouseButton1Click:Connect(function()
 	else
 		followBtn.Text="AUTO FOLLOW: OFF"
 		followBtn.BackgroundColor3=Color3.fromRGB(180,50,50)
-		if followConnection then followConnection:Disconnect() end
+		if followConnection me then followConnection:Disconnect() end
 	end
 end)
 
