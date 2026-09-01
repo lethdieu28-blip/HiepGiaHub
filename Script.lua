@@ -25,13 +25,14 @@ local P2=C("Frame",{Size=UDim2.new(1,0,1,0),BackgroundTransparency=1,Visible=fal
 Tb1.MouseButton1Click:Connect(function() P1.Visible,P2.Visible=true,false Tb1.BackgroundColor3,Tb2.BackgroundColor3=Color3.fromRGB(0,170,255),Color3.fromRGB(30,30,35) end)
 Tb2.MouseButton1Click:Connect(function() P1.Visible,P2.Visible=false,true Tb2.BackgroundColor3,Tb1.BackgroundColor3=Color3.fromRGB(0,170,255),Color3.fromRGB(30,30,35) end)
 
--- TAB MAIN: Auto Walk (Đầu tiên) & Auto Jump (Thứ hai)
-local WBtn=C("TextButton",{Size=UDim2.new(0.95,0,0,40),Position=UDim2.new(0,0,0,10),Text="AUTO WALK: OFF",TextColor3=Color3.fromRGB(255,70,70),TextSize=15,Font=4,BackgroundColor3=Color3.fromRGB(35,35,42)},P1) C("UICorner",{CornerRadius=UDim.new(0,10)},WBtn)
-local WBox=C("TextBox",{Size=UDim2.new(0.95,0,0,35),Position=UDim2.new(0,0,0,58),Text="300",PlaceholderText="Tốc độ 1 - 1000",TextColor3=Color3.fromRGB(0,210,255),TextSize=15,Font=4,BackgroundColor3=Color3.fromRGB(20,20,28)},P1) C("UICorner",{CornerRadius=UDim.new(0,8)},WBox) C("UIStroke",{Color=Color3.fromRGB(0,170,255),Thickness=1},WBox)
+-- TAB MAIN: Walk Speed (Đầu tiên) & Auto Jump (Thứ hai)
+local WBtn=C("TextButton",{Size=UDim2.new(0.95,0,0,40),Position=UDim2.new(0,0,0,10),Text="WALK SPEED: OFF",TextColor3=Color3.fromRGB(255,70,70),TextSize=15,Font=4,BackgroundColor3=Color3.fromRGB(35,35,42)},P1) C("UICorner",{CornerRadius=UDim.new(0,10)},WBtn)
+local WBox=C("TextBox",{Size=UDim2.new(0.95,0,0,35),Position=UDim2.new(0,0,0,58),Text="300",PlaceholderText="Tốc độ 1 - 10000",TextColor3=Color3.fromRGB(0,210,255),TextSize=15,Font=4,BackgroundColor3=Color3.fromRGB(20,20,28)},P1) C("UICorner",{CornerRadius=UDim.new(0,8)},WBox) C("UIStroke",{Color=Color3.fromRGB(0,170,255),Thickness=1},WBox)
 
 local walkSpd,aW=300,false
-WBox.FocusLost:Connect(function() local n=tonumber(WBox.Text) walkSpd=n and math.clamp(n,1,1000) or 300 WBox.Text=tostring(walkSpd) end)
-WBtn.MouseButton1Click:Connect(function() aW=not aW WBtn.Text="AUTO WALK: "..(aW and "ON" or "OFF") WBtn.TextColor3=aW and Color3.fromRGB(80,255,80) or Color3.fromRGB(255,70,70) end)
+local function resetSpd() if LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then LP.Character:FindFirstChildOfClass("Humanoid").WalkSpeed=16 end end
+WBox.FocusLost:Connect(function() local n=tonumber(WBox.Text) walkSpd=n and math.clamp(n,1,10000) or 300 WBox.Text=tostring(walkSpd) end)
+WBtn.MouseButton1Click:Connect(function() aW=not aW WBtn.Text="WALK SPEED: "..(aW and "ON" or "OFF") WBtn.TextColor3=aW and Color3.fromRGB(80,255,80) or Color3.fromRGB(255,70,70) if not aW then resetSpd() end end)
 RS.Heartbeat:Connect(function() if not aW or not LP.Character then return end local hum,hrp=LP.Character:FindFirstChildOfClass("Humanoid"),LP.Character:FindFirstChild("HumanoidRootPart") if hum and hrp then hum.WalkSpeed=walkSpd hum:Move(hrp.CFrame.LookVector,false) end end)
 
 local JBtn=C("TextButton",{Size=UDim2.new(0.95,0,0,40),Position=UDim2.new(0,0,0,105),Text="Auto Jump: OFF",TextColor3=Color3.fromRGB(255,70,70),TextSize=15,Font=4,BackgroundColor3=Color3.fromRGB(35,35,42)},P1) C("UICorner",{CornerRadius=UDim.new(0,10)},JBtn)
