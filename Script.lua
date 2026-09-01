@@ -1,6 +1,7 @@
 local TS,UIS,RS,LP=game:GetService("TweenService"),game:GetService("UserInputService"),game:GetService("RunService"),game:GetService("Players")
 local LocalPlayer=LP.LocalPlayer
 local Workspace=game:GetService("Workspace")
+local Camera=Workspace.CurrentCamera
 
 local SG=Instance.new("ScreenGui",game:GetService("CoreGui") or LocalPlayer:WaitForChild("PlayerGui")) SG.Name="HiepGiaHubGui" SG.ResetOnSpawn=false
 local function C(cls,p,parent) local o=Instance.new(cls) for k,v in pairs(p) do o[k]=v end if parent then o.Parent=parent end return o end
@@ -28,7 +29,7 @@ local P2=C("Frame",{Size=UDim2.new(1,0,1,0),BackgroundTransparency=1,Visible=fal
 Tb1.MouseButton1Click:Connect(function() P1.Visible,P2.Visible=true,false Tb1.BackgroundColor3,Tb2.BackgroundColor3=Color3.fromRGB(0,170,255),Color3.fromRGB(30,30,35) end)
 Tb2.MouseButton1Click:Connect(function() P1.Visible,P2.Visible=false,true Tb2.BackgroundColor3,Tb1.BackgroundColor3=Color3.fromRGB(0,170,255),Color3.fromRGB(30,30,35) end)
 
--- TAB MAIN: Walk Speed & Auto Jump
+-- TAB MAIN
 local WBtn=C("TextButton",{Size=UDim2.new(0.95,0,0,40),Position=UDim2.new(0,0,0,10),Text="WALK SPEED: OFF",TextColor3=Color3.fromRGB(255,70,70),TextSize=15,Font=4,BackgroundColor3=Color3.fromRGB(35,35,42)},P1) C("UICorner",{CornerRadius=UDim.new(0,10)},WBtn)
 local WBox=C("TextBox",{Size=UDim2.new(0.95,0,0,35),Position=UDim2.new(0,0,0,58),Text="300",PlaceholderText="Tốc độ 1 - 10000",TextColor3=Color3.fromRGB(0,210,255),TextSize=15,Font=4,BackgroundColor3=Color3.fromRGB(20,20,28)},P1) C("UICorner",{CornerRadius=UDim.new(0,8)},WBox) C("UIStroke",{Color=Color3.fromRGB(0,170,255),Thickness=1},WBox)
 
@@ -57,60 +58,121 @@ UIS.InputEnded:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseB
 FBtn.MouseButton1Click:Connect(function() isFly=not isFly FBtn.Text,FBtn.TextColor3="Fly: "..(isFly and "ON" or "OFF"),isFly and Color3.fromRGB(80,255,80) or Color3.fromRGB(255,70,70) local c=LocalPlayer.Character if not c or not c:FindFirstChild("HumanoidRootPart") then return end local hrp=c.HumanoidRootPart
 if isFly then bV=C("BodyVelocity",{MaxForce=Vector3.new(1e9,1e9,1e9),Velocity=Vector3.zero},hrp) bG=C("BodyGyro",{MaxTorque=Vector3.new(1e9,1e9,1e9),CFrame=hrp.CFrame},hrp) flyC=RS.RenderStepped:Connect(function() if isFly and hrp then local cam=workspace.CurrentCamera local hum=c:FindFirstChildOfClass("Humanoid") local m=hum and hum.MoveDirection or Vector3.zero bG.CFrame=cam.CFrame bV.Velocity=m.Magnitude>0 and cam.CFrame.LookVector*(m.Magnitude*flySpd) or Vector3.zero end end) else if flyC then flyC:Disconnect() end if bV then bV:Destroy() end if bG then bG:Destroy() end end end)
 
--- NÚT 1: NHẬN TOOL TELEPORT (TRONG TAB FLY & TP)
+-- TOOL TELEPORT
 local TPBtn=C("TextButton",{Size=UDim2.new(0.95,0,0,40),Position=UDim2.new(0,0,0,110),Text="Nhận Tool Teleport",TextColor3=Color3.fromRGB(0,210,255),TextSize=15,Font=4,BackgroundColor3=Color3.fromRGB(35,35,42)},P2) C("UICorner",{CornerRadius=UDim.new(0,10)},TPBtn)
 TPBtn.MouseButton1Click:Connect(function() local t=Instance.new("Tool",LocalPlayer.Backpack) t.Name,t.RequiresHandle="TP Tool",false t.Activated:Connect(function() local m,c=LocalPlayer:GetMouse(),LocalPlayer.Character if c and c:FindFirstChild("HumanoidRootPart") and m.Hit then c.HumanoidRootPart.CFrame=CFrame.new(m.Hit.Position+Vector3.new(0,3,0)) end end) TPBtn.Text="Đã thêm TP Tool!" task.wait(1) TPBtn.Text="Nhận Tool Teleport" end)
 
--- NÚT 2: TP PLAYER HIỆP BÉO (NẰM TRONG TAB FLY & TP)
-local toggleBtn=C("TextButton",{Size=UDim2.new(0.95,0,0,40),Position=UDim2.new(0,0,0,160),BackgroundColor3=Color3.fromRGB(0,120,215),TextColor3=Color3.fromRGB(255,255,255),Text="Tp player Hiệp béo",TextSize=15,Font=Enum.Font.SourceSansBold},P2) C("UICorner",{CornerRadius=UDim.new(0,10)},toggleBtn)
+-- PLAYER TRACKER BUTTON (TRONG TAB FLY & TP)
+local trackToggleBtn=C("TextButton",{Size=UDim2.new(0.95,0,0,40),Position=UDim2.new(0,0,0,160),BackgroundColor3=Color3.fromRGB(0,120,215),TextColor3=Color3.fromRGB(255,255,255),Text="Player Tracker / Spectate",TextSize=15,Font=Enum.Font.SourceSansBold},P2) C("UICorner",{CornerRadius=UDim.new(0,10)},trackToggleBtn)
 
--- KHUNG DANH SÁCH PLAYER (BẬT RA KHI BẤM NÚT)
-local mainFrame=C("Frame",{Size=UDim2.new(0,230,0,310),Position=UDim2.new(0.5,-115,0.5,-155),BackgroundColor3=Color3.fromRGB(25,25,25),BorderSizePixel=0,Visible=false,Active=true,Draggable=true},SG)
+-- KHUNG HỆ THỐNG TRACKER (HIỆN RA KHI BẤM NÚT)
+local mainFrame=C("Frame",{Size=UDim2.new(0,240,0,300),Position=UDim2.new(0.5,-120,0.5,-150),BackgroundColor3=Color3.fromRGB(30,30,30),Active=true,Draggable=true,Visible=false},SG)
 C("UICorner",{CornerRadius=UDim.new(0,10)},mainFrame) C("UIStroke",{Color=Color3.fromRGB(0,170,255),Thickness=1.5},mainFrame)
 
-local title=C("TextLabel",{Size=UDim2.new(1,0,0,40),BackgroundColor3=Color3.fromRGB(40,40,40),Text="DANH SÁCH TELEPORT",TextColor3=Color3.fromRGB(255,255,255),TextSize=14,Font=Enum.Font.SourceSansBold},mainFrame)
+local title=C("TextLabel",{Size=UDim2.new(1,0,0,35),BackgroundColor3=Color3.fromRGB(45,45,45),Text="PLAYER TRACKER",TextColor3=Color3.fromRGB(255,255,255),TextSize=14,Font=Enum.Font.SourceSansBold},mainFrame)
 C("UICorner",{CornerRadius=UDim.new(0,10)},title)
 
-local scrollFrame=C("ScrollingFrame",{Size=UDim2.new(1,-16,1,-50),Position=UDim2.new(0,8,0,45),BackgroundTransparency=1,CanvasSize=UDim2.new(0,0,0,0),ScrollBarThickness=8},mainFrame)
-local uiListLayout=C("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,8)},scrollFrame)
-uiListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() scrollFrame.CanvasSize=UDim2.new(0,0,0,uiListLayout.AbsoluteContentSize.Y) end)
+local scrollingFrame=C("ScrollingFrame",{Size=UDim2.new(1,-12,1,-95),Position=UDim2.new(0,6,0,40),BackgroundTransparency=1,CanvasSize=UDim2.new(0,0,0,0),ScrollBarThickness=6},mainFrame)
+local UIListLayout=C("UIListLayout",{SortOrder=Enum.SortOrder.LayoutOrder,Padding=UDim.new(0,6)},scrollingFrame)
 
-toggleBtn.MouseButton1Click:Connect(function() mainFrame.Visible=not mainFrame.Visible end)
+local followBtn=C("TextButton",{Size=UDim2.new(1,-12,0,40),Position=UDim2.new(0,6,1,-48),Text="AUTO FOLLOW: OFF",BackgroundColor3=Color3.fromRGB(180,50,50),TextColor3=Color3.fromRGB(255,255,255),Font=Enum.Font.SourceSansBold,TextSize=13},mainFrame)
+C("UICorner",{CornerRadius=UDim.new(0,8)},followBtn)
 
-local function teleportToPlayer(targetPlayer)
-    if not targetPlayer then return end
-    local myCharacter=LocalPlayer.Character
-    if not myCharacter then return end
-    local targetChar=targetPlayer.Character
-    if targetChar and targetChar:FindFirstChild("HumanoidRootPart") then
-        local targetHRP=targetChar.HumanoidRootPart
-        pcall(function() Workspace:RequestStreamAroundAsync(targetHRP.Position) end)
-        local count=0
-        local connection
-        connection=RS.RenderStepped:Connect(function()
-            if targetChar and targetChar:FindFirstChild("HumanoidRootPart") and myCharacter then
-                myCharacter:PivotTo(targetHRP.CFrame*CFrame.new(0,3,0))
-            end
-            count=count+1
-            if count>=5 then connection:Disconnect() end
-        end)
-    end
+local selectedTarget,spectateTarget,isFollowing,followConnection=nil,nil,false,nil
+
+trackToggleBtn.MouseButton1Click:Connect(function() mainFrame.Visible=not mainFrame.Visible end)
+
+local function setCameraTarget(player)
+	if spectateTarget==player then
+		spectateTarget=nil
+		if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then Camera.CameraSubject=LocalPlayer.Character.Humanoid end
+	else
+		spectateTarget=player
+		if player and player.Character and player.Character:FindFirstChild("Humanoid") then Camera.CameraSubject=player.Character.Humanoid end
+	end
 end
 
-local function updatePlayerList()
-    for _,child in pairs(scrollFrame:GetChildren()) do if child:IsA("TextButton") then child:Destroy() end end
-    for _,player in pairs(LP:GetPlayers()) do
-        if player~=LocalPlayer then
-            local btn=C("TextButton",{Size=UDim2.new(1,-10,0,42),BackgroundColor3=Color3.fromRGB(50,50,50),TextColor3=Color3.fromRGB(255,255,255),Text=player.DisplayName.."\n(@"..player.Name..")",TextSize=13,Font=Enum.Font.SourceSans},scrollFrame)
-            C("UICorner",{CornerRadius=UDim.new(0,6)},btn)
-            btn.MouseButton1Click:Connect(function() teleportToPlayer(player) end)
-        end
-    end
+RS.RenderStepped:Connect(function()
+	if spectateTarget then
+		if spectateTarget.Character and spectateTarget.Character:FindFirstChild("Humanoid") then Camera.CameraSubject=spectateTarget.Character.Humanoid end
+	else
+		if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") and Camera.CameraSubject~=LocalPlayer.Character.Humanoid then Camera.CameraSubject=LocalPlayer.Character.Humanoid end
+	end
+end)
+
+local function teleportTo(targetPlayer)
+	if targetPlayer and targetPlayer.Character then
+		local targetHRP=targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+		local myChar=LocalPlayer.Character
+		local myHRP=myChar and myChar:FindFirstChild("HumanoidRootPart")
+		if targetHRP and myHRP then myHRP.CFrame=targetHRP.CFrame*CFrame.new(0,0,3) end
+	end
 end
 
-updatePlayerList()
-LP.PlayerAdded:Connect(updatePlayerList)
-LP.PlayerRemoving:Connect(updatePlayerList)
+local function startFollowing()
+	if followConnection then followConnection:Disconnect() end
+	followConnection=RS.RenderStepped:Connect(function()
+		if isFollowing and selectedTarget and selectedTarget.Character then
+			local targetHRP=selectedTarget.Character:FindFirstChild("HumanoidRootPart")
+			local myChar=LocalPlayer.Character
+			local myHRP=myChar and myChar:FindFirstChild("HumanoidRootPart")
+			if targetHRP and myHRP then myHRP.CFrame=targetHRP.CFrame*CFrame.new(0,0,3) end
+		end
+	end)
+end
+
+local function refreshPlayerList()
+	for _,child in pairs(scrollingFrame:GetChildren()) do if child:IsA("Frame") then child:Destroy() end end
+	for _,player in pairs(LP:GetPlayers()) do
+		if player~=LocalPlayer then
+			local itemFrame=C("Frame",{Size=UDim2.new(1,-6,0,35),BackgroundColor3=Color3.fromRGB(45,45,45)},scrollingFrame)
+			C("UICorner",{CornerRadius=UDim.new(0,6)},itemFrame)
+
+			local nameBtn=C("TextButton",{Size=UDim2.new(0.65,0,1,0),Text=" "..player.DisplayName,TextXAlignment=0,BackgroundColor3=(selectedTarget==player) and Color3.fromRGB(0,150,200) or Color3.fromRGB(55,55,55),TextColor3=Color3.fromRGB(255,255,255),Font=Enum.Font.SourceSans,TextSize=13},itemFrame)
+			C("UICorner",{CornerRadius=UDim.new(0,6)},nameBtn)
+
+			local isViewing=(spectateTarget==player)
+			local visBtn=C("TextButton",{Size=UDim2.new(0.32,0,0.8,0),Position=UDim2.new(0.66,2,0.1,0),Text=isViewing and "CAM: ON" or "CAM: OFF",BackgroundColor3=isViewing and Color3.fromRGB(50,180,50) or Color3.fromRGB(150,50,50),TextColor3=Color3.fromRGB(255,255,255),Font=Enum.Font.SourceSansBold,TextSize=11},itemFrame)
+			C("UICorner",{CornerRadius=UDim.new(0,4)},visBtn)
+
+			nameBtn.MouseButton1Click:Connect(function() selectedTarget=player teleportTo(player) refreshPlayerList() end)
+			visBtn.MouseButton1Click:Connect(function() setCameraTarget(player) refreshPlayerList() end)
+		end
+	end
+	scrollingFrame.CanvasSize=UDim2.new(0,0,0,UIListLayout.AbsoluteContentSize.Y)
+end
+
+followBtn.MouseButton1Click:Connect(function()
+	if not selectedTarget then return end
+	isFollowing=not isFollowing
+	if isFollowing then
+		followBtn.Text="FOLLOWING: "..string.upper(selectedTarget.DisplayName)
+		followBtn.BackgroundColor3=Color3.fromRGB(50,180,50)
+		startFollowing()
+	else
+		followBtn.Text="AUTO FOLLOW: OFF"
+		followBtn.BackgroundColor3=Color3.fromRGB(180,50,50)
+		if followConnection then followConnection:Disconnect() end
+	end
+end)
+
+LP.PlayerAdded:Connect(refreshPlayerList)
+LP.PlayerRemoving:Connect(function(player)
+	if player==spectateTarget then
+		spectateTarget=nil
+		if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then Camera.CameraSubject=LocalPlayer.Character.Humanoid end
+	end
+	if player==selectedTarget then
+		isFollowing=false
+		selectedTarget=nil
+		followBtn.Text="AUTO FOLLOW: OFF"
+		followBtn.BackgroundColor3=Color3.fromRGB(180,50,50)
+		if followConnection then followConnection:Disconnect() end
+	end
+	refreshPlayerList()
+end)
+
+refreshPlayerList()
 
 local isOpen,nS,zS=false,UDim2.new(0.85,0,0.8,0),UDim2.new(0,0,0,0)
 local function tog() isOpen=not isOpen if isOpen then Main.Size,Main.Visible=zS,true TS:Create(Main,TweenInfo.new(0.3,Enum.EasingStyle.Back,Enum.EasingDirection.Out),{Size=nS}):Play() else local tw=TS:Create(Main,TweenInfo.new(0.2,Enum.EasingStyle.Quad,Enum.EasingDirection.In),{Size=zS}) tw:Play() tw.Completed:Connect(function() if not isOpen then Main.Visible=false end end) end end
