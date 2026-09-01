@@ -11,7 +11,7 @@ local function drag(g) local d,sP,dS g.InputBegan:Connect(function(i) if not isD
 local TBtn=C("ImageButton",{Image="rbxassetid://99351037294920",Position=UDim2.new(0.03,0,0.2,0),Size=UDim2.new(0,55,0,55),BackgroundColor3=Color3.fromRGB(20,20,20),BackgroundTransparency=0.2},SG)
 C("UICorner",{CornerRadius=UDim.new(0,12)},TBtn) C("UIStroke",{Color=Color3.fromRGB(0,170,255),Thickness=2},TBtn) drag(TBtn)
 
-local Main=C("Frame",{AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.new(0.5,0,0.5,0),Size=UDim2.new(0.85,0,0.8,0),BackgroundColor3=Color3.fromRGB(25,25,30),Visible=false,ClipsDescendants=true},SG)
+local Main=C("Frame",{AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.new(0.5,0,0.5,0),Size=UDim2.new(0.85,0,0.8,0),BackgroundColor3=Color3.fromRGB(25,25,30),Visible=false,ClipsDescendants=false},SG)
 C("UICorner",{CornerRadius=UDim.new(0,15)},Main) C("UIStroke",{Color=Color3.fromRGB(0,170,255),Thickness=2},Main) drag(Main)
 
 local Hd=C("Frame",{Size=UDim2.new(1,0,0,45),BackgroundColor3=Color3.fromRGB(15,15,20)},Main) C("UICorner",{CornerRadius=UDim.new(0,15)},Hd)
@@ -57,12 +57,16 @@ UIS.InputEnded:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseB
 FBtn.MouseButton1Click:Connect(function() isFly=not isFly FBtn.Text,FBtn.TextColor3="Fly: "..(isFly and "ON" or "OFF"),isFly and Color3.fromRGB(80,255,80) or Color3.fromRGB(255,70,70) local c=LocalPlayer.Character if not c or not c:FindFirstChild("HumanoidRootPart") then return end local hrp=c.HumanoidRootPart
 if isFly then bV=C("BodyVelocity",{MaxForce=Vector3.new(1e9,1e9,1e9),Velocity=Vector3.zero},hrp) bG=C("BodyGyro",{MaxTorque=Vector3.new(1e9,1e9,1e9),CFrame=hrp.CFrame},hrp) flyC=RS.RenderStepped:Connect(function() if isFly and hrp then local cam=workspace.CurrentCamera local hum=c:FindFirstChildOfClass("Humanoid") local m=hum and hum.MoveDirection or Vector3.zero bG.CFrame=cam.CFrame bV.Velocity=m.Magnitude>0 and cam.CFrame.LookVector*(m.Magnitude*flySpd) or Vector3.zero end end) else if flyC then flyC:Disconnect() end if bV then bV:Destroy() end if bG then bG:Destroy() end end end)
 
--- TP PLAYER HIỆP BÉO (Nút nổi di chuyển trên màn hình)
-local toggleBtn=C("TextButton",{Size=UDim2.new(0,160,0,45),Position=UDim2.new(0,15,0.4,0),BackgroundColor3=Color3.fromRGB(0,120,215),TextColor3=Color3.fromRGB(255,255,255),Text="Tp player Hiệp béo",TextSize=14,Font=Enum.Font.SourceSansBold,Active=true,Draggable=true},SG)
-C("UICorner",{CornerRadius=UDim.new(0,8)},toggleBtn)
+-- NÚT 1: NHẬN TOOL TELEPORT (TRONG TAB FLY & TP)
+local TPBtn=C("TextButton",{Size=UDim2.new(0.95,0,0,40),Position=UDim2.new(0,0,0,110),Text="Nhận Tool Teleport",TextColor3=Color3.fromRGB(0,210,255),TextSize=15,Font=4,BackgroundColor3=Color3.fromRGB(35,35,42)},P2) C("UICorner",{CornerRadius=UDim.new(0,10)},TPBtn)
+TPBtn.MouseButton1Click:Connect(function() local t=Instance.new("Tool",LocalPlayer.Backpack) t.Name,t.RequiresHandle="TP Tool",false t.Activated:Connect(function() local m,c=LocalPlayer:GetMouse(),LocalPlayer.Character if c and c:FindFirstChild("HumanoidRootPart") and m.Hit then c.HumanoidRootPart.CFrame=CFrame.new(m.Hit.Position+Vector3.new(0,3,0)) end end) TPBtn.Text="Đã thêm TP Tool!" task.wait(1) TPBtn.Text="Nhận Tool Teleport" end)
 
+-- NÚT 2: TP PLAYER HIỆP BÉO (NẰM TRONG TAB FLY & TP)
+local toggleBtn=C("TextButton",{Size=UDim2.new(0.95,0,0,40),Position=UDim2.new(0,0,0,160),BackgroundColor3=Color3.fromRGB(0,120,215),TextColor3=Color3.fromRGB(255,255,255),Text="Tp player Hiệp béo",TextSize=15,Font=Enum.Font.SourceSansBold},P2) C("UICorner",{CornerRadius=UDim.new(0,10)},toggleBtn)
+
+-- KHUNG DANH SÁCH PLAYER (BẬT RA KHI BẤM NÚT)
 local mainFrame=C("Frame",{Size=UDim2.new(0,230,0,310),Position=UDim2.new(0.5,-115,0.5,-155),BackgroundColor3=Color3.fromRGB(25,25,25),BorderSizePixel=0,Visible=false,Active=true,Draggable=true},SG)
-C("UICorner",{CornerRadius=UDim.new(0,10)},mainFrame)
+C("UICorner",{CornerRadius=UDim.new(0,10)},mainFrame) C("UIStroke",{Color=Color3.fromRGB(0,170,255),Thickness=1.5},mainFrame)
 
 local title=C("TextLabel",{Size=UDim2.new(1,0,0,40),BackgroundColor3=Color3.fromRGB(40,40,40),Text="DANH SÁCH TELEPORT",TextColor3=Color3.fromRGB(255,255,255),TextSize=14,Font=Enum.Font.SourceSansBold},mainFrame)
 C("UICorner",{CornerRadius=UDim.new(0,10)},title)
