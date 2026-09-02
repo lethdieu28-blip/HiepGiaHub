@@ -173,7 +173,7 @@ followBtn.MouseButton1Click:Connect(function()
 	else
 		followBtn.Text="AUTO FOLLOW: OFF"
 		followBtn.BackgroundColor3=Color3.fromRGB(180,50,50)
-		if followConnection me then followConnection:Disconnect() end
+		if followConnection then followConnection:Disconnect() end
 	end
 end)
 
