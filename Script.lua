@@ -161,15 +161,17 @@ RS.RenderStepped:Connect(function()
 	end
 end)
 
+-- SỬA KHOẢNG CÁCH DỊCH CHUYỂN SÁT LẠI HƠN (1.2 STUDS)
 local function teleportTo(targetPlayer)
 	if targetPlayer and targetPlayer.Character then
 		local targetHRP=targetPlayer.Character:FindFirstChild("HumanoidRootPart")
 		local myChar=LocalPlayer.Character
 		local myHRP=myChar and myChar:FindFirstChild("HumanoidRootPart")
-		if targetHRP and myHRP then myHRP.CFrame=targetHRP.CFrame*CFrame.new(0,0,3) end
+		if targetHRP and myHRP then myHRP.CFrame=targetHRP.CFrame*CFrame.new(0,0,1.2) end
 	end
 end
 
+-- SỬA KHOẢNG CÁCH THEO DÕI TỰ ĐỘNG SÁT LẠI HƠN (1.2 STUDS)
 local function startFollowing()
 	if followConnection then followConnection:Disconnect() end
 	followConnection=RS.RenderStepped:Connect(function()
@@ -177,7 +179,7 @@ local function startFollowing()
 			local targetHRP=selectedTarget.Character:FindFirstChild("HumanoidRootPart")
 			local myChar=LocalPlayer.Character
 			local myHRP=myChar and myChar:FindFirstChild("HumanoidRootPart")
-			if targetHRP and myHRP then myHRP.CFrame=targetHRP.CFrame*CFrame.new(0,0,3) end
+			if targetHRP and myHRP then myHRP.CFrame=targetHRP.CFrame*CFrame.new(0,0,1.2) end
 		end
 	end)
 end
