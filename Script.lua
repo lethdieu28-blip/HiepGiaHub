@@ -7,6 +7,7 @@ local Camera = workspace.CurrentCamera
 local SG = Instance.new("ScreenGui", game:GetService("CoreGui") or LP:WaitForChild("PlayerGui"))
 SG.Name = "HiepGiaHubGui"
 SG.ResetOnSpawn = false
+SG.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 local function C(cls, p, parent)
 	local o = Instance.new(cls)
@@ -17,15 +18,17 @@ end
 
 local isDraggingMenu = false
 local function drag(g)
-	local d, sP, dS
+	local d, sP, dS, dragThreshold = false, nil, nil, 0
 	g.InputBegan:Connect(function(i)
 		if not isDraggingMenu and (i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch) then
 			d, dS, sP = true, i.Position, g.Position
+			dragThreshold = 0
 		end
 	end)
 	UIS.InputChanged:Connect(function(i)
 		if d and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
 			local delta = i.Position - dS
+			dragThreshold = delta.Magnitude
 			g.Position = UDim2.new(sP.X.Scale, sP.X.Offset + delta.X, sP.Y.Scale, sP.Y.Offset + delta.Y)
 		end
 	end)
@@ -36,14 +39,32 @@ local function drag(g)
 	end)
 end
 
--- NÚT NỔI BẬT MENU (IMAGE BUTTON)
-local TBtn = C("ImageButton", {Image = "rbxassetid://96342427921941", Position = UDim2.new(0.03, 0, 0.2, 0), Size = UDim2.new(0, 55, 0, 55), BackgroundColor3 = Color3.fromRGB(20, 20, 20), BackgroundTransparency = 0.2}, SG)
+-- NÚT LOGO MENU (IMAGE BUTTON) - TỐI ƯU CHO DELTA MOBILE
+local TBtn = C("ImageButton", {
+	Image = "rbxassetid://96342427921941", 
+	Position = UDim2.new(0.03, 0, 0.2, 0), 
+	Size = UDim2.new(0, 55, 0, 55), 
+	BackgroundColor3 = Color3.fromRGB(20, 20, 20), 
+	BackgroundTransparency = 0.2,
+	Active = true,
+	Selectable = true,
+	ZIndex = 10
+}, SG)
 local TBtnCorner = C("UICorner", {CornerRadius = UDim.new(0, 12)}, TBtn)
 local TBtnStroke = C("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 2}, TBtn)
 drag(TBtn)
 
 -- KHUNG MENU CHÍNH
-local Main = C("Frame", {AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0.5, 0), Size = UDim2.new(0.85, 0, 0.8, 0), BackgroundColor3 = Color3.fromRGB(25, 25, 30), Visible = false, ClipsDescendants = true}, SG)
+local Main = C("Frame", {
+	AnchorPoint = Vector2.new(0.5, 0.5), 
+	Position = UDim2.new(0.5, 0, 0.5, 0), 
+	Size = UDim2.new(0.85, 0, 0.8, 0), 
+	BackgroundColor3 = Color3.fromRGB(25, 25, 30), 
+	Visible = false, 
+	ClipsDescendants = true,
+	Active = true,
+	ZIndex = 5
+}, SG)
 C("UICorner", {CornerRadius = UDim.new(0, 15)}, Main)
 local MainStroke = C("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 2}, Main)
 drag(Main)
@@ -51,7 +72,7 @@ drag(Main)
 local Hd = C("Frame", {Size = UDim2.new(1, 0, 0, 45), BackgroundColor3 = Color3.fromRGB(15, 15, 20)}, Main)
 C("UICorner", {CornerRadius = UDim.new(0, 15)}, Hd)
 local TitleTxt = C("TextLabel", {Size = UDim2.new(0.7, 0, 1, 0), Position = UDim2.new(0.03, 0, 0, 0), Text = "HiepGia—Hub", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 20, Font = 4, TextXAlignment = 0, BackgroundTransparency = 1}, Hd)
-local CBtn = C("TextButton", {Size = UDim2.new(0, 35, 0, 35), Position = UDim2.new(1, -42, 0.5, -17), Text = "✕", TextColor3 = Color3.fromRGB(255, 80, 80), TextSize = 18, Font = 4, BackgroundColor3 = Color3.fromRGB(35, 35, 40)}, Hd)
+local CBtn = C("TextButton", {Size = UDim2.new(0, 35, 0, 35), Position = UDim2.new(1, -42, 0.5, -17), Text = "✕", TextColor3 = Color3.fromRGB(255, 80, 80), TextSize = 18, Font = 4, BackgroundColor3 = Color3.fromRGB(35, 35, 40), Active = true}, Hd)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, CBtn)
 
 local Sb = C("Frame", {Size = UDim2.new(0.25, 0, 1, -50), Position = UDim2.new(0, 5, 0, 50), BackgroundColor3 = Color3.fromRGB(18, 18, 22), BackgroundTransparency = 0.5}, Main)
@@ -59,11 +80,11 @@ C("UICorner", {CornerRadius = UDim.new(0, 10)}, Sb)
 local Pc = C("Frame", {Size = UDim2.new(0.73, 0, 1, -50), Position = UDim2.new(0.26, 0, 0, 50), BackgroundTransparency = 1, ClipsDescendants = true}, Main)
 
 -- DANH SÁCH TAB SIDEBAR
-local Tb1 = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 40), Position = UDim2.new(0.05, 0, 0, 10), Text = "Main", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 16, Font = 4, BackgroundColor3 = Color3.fromRGB(0, 170, 255)}, Sb)
+local Tb1 = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 40), Position = UDim2.new(0.05, 0, 0, 10), Text = "Main", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 16, Font = 4, BackgroundColor3 = Color3.fromRGB(0, 170, 255), Active = true}, Sb)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, Tb1)
-local Tb2 = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 40), Position = UDim2.new(0.05, 0, 0, 60), Text = "Fly & TP", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 16, Font = 4, BackgroundColor3 = Color3.fromRGB(30, 30, 35)}, Sb)
+local Tb2 = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 40), Position = UDim2.new(0.05, 0, 0, 60), Text = "Fly & TP", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 16, Font = 4, BackgroundColor3 = Color3.fromRGB(30, 30, 35), Active = true}, Sb)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, Tb2)
-local TbSet = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 40), Position = UDim2.new(0.05, 0, 0, 110), Text = "Settings ⚙️", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 16, Font = 4, BackgroundColor3 = Color3.fromRGB(30, 30, 35)}, Sb)
+local TbSet = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 40), Position = UDim2.new(0.05, 0, 0, 110), Text = "Settings ⚙️", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 16, Font = 4, BackgroundColor3 = Color3.fromRGB(30, 30, 35), Active = true}, Sb)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, TbSet)
 
 -- KHUNG CÁC TAB CONTENT
@@ -86,12 +107,12 @@ local function switchTab(activeBtn, activePage)
 	activeBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
 end
 
-Tb1.MouseButton1Click:Connect(function() switchTab(Tb1, P1) end)
-Tb2.MouseButton1Click:Connect(function() switchTab(Tb2, P2) end)
-TbSet.MouseButton1Click:Connect(function() switchTab(TbSet, PSet) end)
+Tb1.Activated:Connect(function() switchTab(Tb1, P1) end)
+Tb2.Activated:Connect(function() switchTab(Tb2, P2) end)
+TbSet.Activated:Connect(function() switchTab(TbSet, PSet) end)
 
 -- ==================== TAB MAIN ====================
-local WBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 40), Text = "WALK SPEED: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 15, Font = 4, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P1)
+local WBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 40), Text = "WALK SPEED: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 15, Font = 4, BackgroundColor3 = Color3.fromRGB(35, 35, 42), Active = true}, P1)
 C("UICorner", {CornerRadius = UDim.new(0, 10)}, WBtn)
 local WBox = C("TextBox", {Size = UDim2.new(0.98, 0, 0, 35), Text = "300", PlaceholderText = "Tốc độ 1 - 10000", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 15, Font = 4, BackgroundColor3 = Color3.fromRGB(20, 20, 28)}, P1)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, WBox)
@@ -106,7 +127,7 @@ WBox.FocusLost:Connect(function()
 	walkSpd = n and math.clamp(n, 1, 10000) or 300
 	WBox.Text = tostring(walkSpd)
 end)
-WBtn.MouseButton1Click:Connect(function()
+WBtn.Activated:Connect(function()
 	aW = not aW
 	WBtn.Text = "WALK SPEED: " .. (aW and "ON" or "OFF")
 	WBtn.TextColor3 = aW and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
@@ -118,7 +139,7 @@ RS.Heartbeat:Connect(function()
 	if hum and hrp then hum.WalkSpeed = walkSpd hum:Move(hrp.CFrame.LookVector, false) end
 end)
 
-local JBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 40), Text = "Auto Jump: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 15, Font = 4, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P1)
+local JBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 40), Text = "Auto Jump: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 15, Font = 4, BackgroundColor3 = Color3.fromRGB(35, 35, 42), Active = true}, P1)
 C("UICorner", {CornerRadius = UDim.new(0, 10)}, JBtn)
 local aJ = false
 task.spawn(function()
@@ -130,13 +151,13 @@ task.spawn(function()
 		task.wait(0.05)
 	end
 end)
-JBtn.MouseButton1Click:Connect(function()
+JBtn.Activated:Connect(function()
 	aJ = not aJ
 	JBtn.Text = "Auto Jump: " .. (aJ and "ON" or "OFF")
 	JBtn.TextColor3 = aJ and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
 end)
 
-local NcBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 40), Text = "NOCLIP: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 15, Font = 4, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P1)
+local NcBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 40), Text = "NOCLIP: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 15, Font = 4, BackgroundColor3 = Color3.fromRGB(35, 35, 42), Active = true}, P1)
 C("UICorner", {CornerRadius = UDim.new(0, 10)}, NcBtn)
 local isNoclip = false
 RS.Stepped:Connect(function()
@@ -144,13 +165,13 @@ RS.Stepped:Connect(function()
 		for _, part in ipairs(LP.Character:GetDescendants()) do if part:IsA("BasePart") then part.CanCollide = false end end
 	end
 end)
-NcBtn.MouseButton1Click:Connect(function()
+NcBtn.Activated:Connect(function()
 	isNoclip = not isNoclip
 	NcBtn.Text = "NOCLIP: " .. (isNoclip and "ON 👻" or "OFF")
 	NcBtn.TextColor3 = isNoclip and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
 end)
 
-local InfJBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 40), Text = "INF JUMP: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 15, Font = 4, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P1)
+local InfJBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 40), Text = "INF JUMP: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 15, Font = 4, BackgroundColor3 = Color3.fromRGB(35, 35, 42), Active = true}, P1)
 C("UICorner", {CornerRadius = UDim.new(0, 10)}, InfJBtn)
 local isInfJump = false
 UIS.JumpRequest:Connect(function()
@@ -159,13 +180,13 @@ UIS.JumpRequest:Connect(function()
 		if humanoid then humanoid:ChangeState(Enum.HumanoidStateType.Jumping) end
 	end
 end)
-InfJBtn.MouseButton1Click:Connect(function()
+InfJBtn.Activated:Connect(function()
 	isInfJump = not isInfJump
 	InfJBtn.Text = "INF JUMP: " .. (isInfJump and "ON 🚀" or "OFF")
 	InfJBtn.TextColor3 = isInfJump and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
 end)
 
-local SpinBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 40), Text = "BẬT XOAY", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 15, Font = 4, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P1)
+local SpinBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 40), Text = "BẬT XOAY", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 15, Font = 4, BackgroundColor3 = Color3.fromRGB(35, 35, 42), Active = true}, P1)
 C("UICorner", {CornerRadius = UDim.new(0, 10)}, SpinBtn)
 local SpinBox = C("TextBox", {Size = UDim2.new(0.98, 0, 0, 35), Text = "100", PlaceholderText = "Tốc độ xoay (1-10000)", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 15, Font = 4, BackgroundColor3 = Color3.fromRGB(20, 20, 28)}, P1)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, SpinBox)
@@ -192,16 +213,16 @@ local function startSpin()
 	spinning = true SpinBtn.Text = "TẮT XOAY" SpinBtn.TextColor3 = Color3.fromRGB(80, 255, 80)
 end
 SpinBox:GetPropertyChangedSignal("Text"):Connect(function() if spinning and angularVelocity then angularVelocity.AngularVelocity = Vector3.new(0, getSpinSpeed(), 0) end end)
-SpinBtn.MouseButton1Click:Connect(function() if spinning then stopSpin() else startSpin() end end)
+SpinBtn.Activated:Connect(function() if spinning then stopSpin() else startSpin() end end)
 LP.CharacterAdded:Connect(function() stopSpin() end)
 
 -- ==================== TAB FLY & TP ====================
-local FBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 40), Text = "Fly: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 15, Font = 4, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
+local FBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 40), Text = "Fly: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 15, Font = 4, BackgroundColor3 = Color3.fromRGB(35, 35, 42), Active = true}, P2)
 C("UICorner", {CornerRadius = UDim.new(0, 10)}, FBtn)
 
 local FlyContainer = C("Frame", {Size = UDim2.new(0.98, 0, 0, 45), BackgroundTransparency = 1}, P2)
 local SlLbl = C("TextLabel", {Size = UDim2.new(1, 0, 0, 20), Text = "Fly Speed: 50", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 13, BackgroundTransparency = 1, TextXAlignment = 0}, FlyContainer)
-local SlBg = C("Frame", {Size = UDim2.new(1, 0, 0, 18), Position = UDim2.new(0, 0, 0, 22), BackgroundColor3 = Color3.fromRGB(40, 40, 50)}, FlyContainer)
+local SlBg = C("Frame", {Size = UDim2.new(1, 0, 0, 18), Position = UDim2.new(0, 0, 0, 22), BackgroundColor3 = Color3.fromRGB(40, 40, 50), Active = true}, FlyContainer)
 C("UICorner", {CornerRadius = UDim.new(1, 0)}, SlBg)
 local SlFl = C("Frame", {Size = UDim2.new(0.005, 0, 1, 0), BackgroundColor3 = Color3.fromRGB(0, 170, 255)}, SlBg)
 C("UICorner", {CornerRadius = UDim.new(1, 0)}, SlFl)
@@ -217,7 +238,7 @@ SlBg.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.Mou
 UIS.InputChanged:Connect(function(i) if dSl and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then upSl(i) end end)
 UIS.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then dSl = false isDraggingMenu = false end end)
 
-FBtn.MouseButton1Click:Connect(function()
+FBtn.Activated:Connect(function()
 	isFly = not isFly
 	FBtn.Text, FBtn.TextColor3 = "Fly: " .. (isFly and "ON" or "OFF"), isFly and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
 	local c = LP.Character if not c or not c:FindFirstChild("HumanoidRootPart") then return end
@@ -238,9 +259,9 @@ FBtn.MouseButton1Click:Connect(function()
 	end
 end)
 
-local TPBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 40), Text = "Nhận Tool Teleport", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 15, Font = 4, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
+local TPBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 40), Text = "Nhận Tool Teleport", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 15, Font = 4, BackgroundColor3 = Color3.fromRGB(35, 35, 42), Active = true}, P2)
 C("UICorner", {CornerRadius = UDim.new(0, 10)}, TPBtn)
-TPBtn.MouseButton1Click:Connect(function()
+TPBtn.Activated:Connect(function()
 	local t = Instance.new("Tool", LP.Backpack)
 	t.Name, t.RequiresHandle = "TP Tool", false
 	t.Activated:Connect(function()
@@ -259,9 +280,9 @@ local SwitchBG = C("Frame", {Size = UDim2.new(0, 50, 0, 24), Position = UDim2.ne
 C("UICorner", {CornerRadius = UDim.new(1, 0)}, SwitchBG)
 local SwitchCircle = C("Frame", {Size = UDim2.new(0, 20, 0, 20), Position = UDim2.new(0, 2, 0.5, -10), BackgroundColor3 = Color3.fromRGB(200, 200, 200)}, SwitchBG)
 C("UICorner", {CornerRadius = UDim.new(1, 0)}, SwitchCircle)
-local SwitchClick = C("TextButton", {Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Text = ""}, SwitchBG)
+local SwitchClick = C("TextButton", {Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Text = "", Active = true}, SwitchBG)
 
-local mainFrame = C("Frame", {Size = UDim2.new(0, 240, 0, 300), Position = UDim2.new(1, -250, 0.05, 10), BackgroundColor3 = Color3.fromRGB(30, 30, 30), Active = true, Visible = false, ClipsDescendants = true}, SG)
+local mainFrame = C("Frame", {Size = UDim2.new(0, 240, 0, 300), Position = UDim2.new(1, -250, 0.05, 10), BackgroundColor3 = Color3.fromRGB(30, 30, 30), Active = true, Visible = false, ClipsDescendants = true, ZIndex = 6}, SG)
 C("UICorner", {CornerRadius = UDim.new(0, 10)}, mainFrame)
 C("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 1.5}, mainFrame)
 drag(mainFrame)
@@ -272,11 +293,11 @@ C("UICorner", {CornerRadius = UDim.new(0, 10)}, title)
 local scrollingFrame = C("ScrollingFrame", {Size = UDim2.new(1, -12, 1, -95), Position = UDim2.new(0, 6, 0, 40), BackgroundTransparency = 1, CanvasSize = UDim2.new(0, 0, 0, 0), AutomaticCanvasSize = Enum.AutomaticSize.Y, ScrollBarThickness = 6, ClipsDescendants = true}, mainFrame)
 C("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 6)}, scrollingFrame)
 
-local followBtn = C("TextButton", {Size = UDim2.new(1, -12, 0, 40), Position = UDim2.new(0, 6, 1, -48), Text = "AUTO FOLLOW: OFF", BackgroundColor3 = Color3.fromRGB(180, 50, 50), TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.SourceSansBold, TextSize = 13}, mainFrame)
+local followBtn = C("TextButton", {Size = UDim2.new(1, -12, 0, 40), Position = UDim2.new(0, 6, 1, -48), Text = "AUTO FOLLOW: OFF", BackgroundColor3 = Color3.fromRGB(180, 50, 50), TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.SourceSansBold, TextSize = 13, Active = true}, mainFrame)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, followBtn)
 
 local isTrackerEnabled = false
-SwitchClick.MouseButton1Click:Connect(function()
+SwitchClick.Activated:Connect(function()
 	isTrackerEnabled = not isTrackerEnabled
 	TS:Create(SwitchCircle, TweenInfo.new(0.2), {Position = isTrackerEnabled and UDim2.new(1, -22, 0.5, -10) or UDim2.new(0, 2, 0.5, -10)}):Play()
 	TS:Create(SwitchBG, TweenInfo.new(0.2), {BackgroundColor3 = isTrackerEnabled and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(60, 60, 65)}):Play()
@@ -326,18 +347,18 @@ local function refreshPlayerList()
 		if player ~= LP then
 			local itemFrame = C("Frame", {Size = UDim2.new(1, -6, 0, 35), BackgroundColor3 = Color3.fromRGB(45, 45, 45)}, scrollingFrame)
 			C("UICorner", {CornerRadius = UDim.new(0, 6)}, itemFrame)
-			local nameBtn = C("TextButton", {Size = UDim2.new(0.65, 0, 1, 0), Text = " " .. player.DisplayName, TextXAlignment = 0, BackgroundColor3 = (selectedTarget == player) and Color3.fromRGB(0, 150, 200) or Color3.fromRGB(55, 55, 55), TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.SourceSans, TextSize = 13}, itemFrame)
+			local nameBtn = C("TextButton", {Size = UDim2.new(0.65, 0, 1, 0), Text = " " .. player.DisplayName, TextXAlignment = 0, BackgroundColor3 = (selectedTarget == player) and Color3.fromRGB(0, 150, 200) or Color3.fromRGB(55, 55, 55), TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.SourceSans, TextSize = 13, Active = true}, itemFrame)
 			C("UICorner", {CornerRadius = UDim.new(0, 6)}, nameBtn)
 			local isViewing = (spectateTarget == player)
-			local visBtn = C("TextButton", {Size = UDim2.new(0.32, 0, 0.8, 0), Position = UDim2.new(0.66, 2, 0.1, 0), Text = isViewing and "CAM: ON" or "CAM: OFF", BackgroundColor3 = isViewing and Color3.fromRGB(50, 180, 50) or Color3.fromRGB(150, 50, 50), TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.SourceSansBold, TextSize = 11}, itemFrame)
+			local visBtn = C("TextButton", {Size = UDim2.new(0.32, 0, 0.8, 0), Position = UDim2.new(0.66, 2, 0.1, 0), Text = isViewing and "CAM: ON" or "CAM: OFF", BackgroundColor3 = isViewing and Color3.fromRGB(50, 180, 50) or Color3.fromRGB(150, 50, 50), TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.SourceSansBold, TextSize = 11, Active = true}, itemFrame)
 			C("UICorner", {CornerRadius = UDim.new(0, 4)}, visBtn)
-			nameBtn.MouseButton1Click:Connect(function() selectedTarget = player teleportTo(player) refreshPlayerList() end)
-			visBtn.MouseButton1Click:Connect(function() setCameraTarget(player) refreshPlayerList() end)
+			nameBtn.Activated:Connect(function() selectedTarget = player teleportTo(player) refreshPlayerList() end)
+			visBtn.Activated:Connect(function() setCameraTarget(player) refreshPlayerList() end)
 		end
 	end
 end
 
-followBtn.MouseButton1Click:Connect(function()
+followBtn.Activated:Connect(function()
 	if not selectedTarget then return end
 	isFollowing = not isFollowing
 	if isFollowing then
@@ -356,9 +377,9 @@ local TrollSwBG = C("Frame", {Size = UDim2.new(0, 50, 0, 24), Position = UDim2.n
 C("UICorner", {CornerRadius = UDim.new(1, 0)}, TrollSwBG)
 local TrollSwCircle = C("Frame", {Size = UDim2.new(0, 20, 0, 20), Position = UDim2.new(0, 2, 0.5, -10), BackgroundColor3 = Color3.fromRGB(200, 200, 200)}, TrollSwBG)
 C("UICorner", {CornerRadius = UDim.new(1, 0)}, TrollSwCircle)
-local TrollSwClick = C("TextButton", {Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Text = ""}, TrollSwBG)
+local TrollSwClick = C("TextButton", {Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Text = "", Active = true}, TrollSwBG)
 
-local trollMainFrame = C("Frame", {Size = UDim2.new(0, 240, 0, 280), Position = UDim2.new(1, -250, 0.05, 10), BackgroundColor3 = Color3.fromRGB(25, 25, 25), Active = true, Visible = false, ClipsDescendants = true}, SG)
+local trollMainFrame = C("Frame", {Size = UDim2.new(0, 240, 0, 280), Position = UDim2.new(1, -250, 0.05, 10), BackgroundColor3 = Color3.fromRGB(25, 25, 25), Active = true, Visible = false, ClipsDescendants = true, ZIndex = 6}, SG)
 C("UICorner", {CornerRadius = UDim.new(0, 10)}, trollMainFrame)
 C("UIStroke", {Color = Color3.fromRGB(255, 80, 80), Thickness = 1.5}, trollMainFrame)
 drag(trollMainFrame)
@@ -370,14 +391,14 @@ local trollScrollList = C("ScrollingFrame", {Size = UDim2.new(1, -12, 1, -115), 
 C("UICorner", {CornerRadius = UDim.new(0, 6)}, trollScrollList)
 C("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 4)}, trollScrollList)
 
-local toggleTrollBtn = C("TextButton", {Size = UDim2.new(1, -12, 0, 32), Position = UDim2.new(0, 6, 1, -70), Text = "CHỌN NGƯỜI ĐỂ TROLL", BackgroundColor3 = Color3.fromRGB(100, 100, 100), TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.SourceSansBold, TextSize = 12}, trollMainFrame)
+local toggleTrollBtn = C("TextButton", {Size = UDim2.new(1, -12, 0, 32), Position = UDim2.new(0, 6, 1, -70), Text = "CHỌN NGƯỜI ĐỂ TROLL", BackgroundColor3 = Color3.fromRGB(100, 100, 100), TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.SourceSansBold, TextSize = 12, Active = true}, trollMainFrame)
 C("UICorner", {CornerRadius = UDim.new(0, 6)}, toggleTrollBtn)
 
-local refreshTrollBtn = C("TextButton", {Size = UDim2.new(1, -12, 0, 26), Position = UDim2.new(0, 6, 1, -32), Text = "Làm mới danh sách", BackgroundColor3 = Color3.fromRGB(60, 60, 60), TextColor3 = Color3.fromRGB(200, 200, 200), Font = Enum.Font.SourceSans, TextSize = 11}, trollMainFrame)
+local refreshTrollBtn = C("TextButton", {Size = UDim2.new(1, -12, 0, 26), Position = UDim2.new(0, 6, 1, -32), Text = "Làm mới danh sách", BackgroundColor3 = Color3.fromRGB(60, 60, 60), TextColor3 = Color3.fromRGB(200, 200, 200), Font = Enum.Font.SourceSans, TextSize = 11, Active = true}, trollMainFrame)
 C("UICorner", {CornerRadius = UDim.new(0, 6)}, refreshTrollBtn)
 
 local isTrollMenuEnabled = false
-TrollSwClick.MouseButton1Click:Connect(function()
+TrollSwClick.Activated:Connect(function()
 	isTrollMenuEnabled = not isTrollMenuEnabled
 	TS:Create(TrollSwCircle, TweenInfo.new(0.2), {Position = isTrollMenuEnabled and UDim2.new(1, -22, 0.5, -10) or UDim2.new(0, 2, 0.5, -10)}):Play()
 	TS:Create(TrollSwBG, TweenInfo.new(0.2), {BackgroundColor3 = isTrollMenuEnabled and Color3.fromRGB(255, 80, 80) or Color3.fromRGB(60, 60, 65)}):Play()
@@ -416,15 +437,15 @@ local function updateTrollPlayerList()
 	for _, child in pairs(trollScrollList:GetChildren()) do if child:IsA("TextButton") then child:Destroy() end end
 	for _, plr in pairs(LP:GetPlayers()) do
 		if plr ~= LP then
-			local pBtn = C("TextButton", {Size = UDim2.new(1, -4, 0, 28), Text = " " .. plr.DisplayName .. " (@" .. plr.Name .. ")", TextColor3 = Color3.fromRGB(255, 255, 255), BackgroundColor3 = Color3.fromRGB(50, 50, 50), Font = Enum.Font.SourceSans, TextSize = 12, TextXAlignment = 0}, trollScrollList)
+			local pBtn = C("TextButton", {Size = UDim2.new(1, -4, 0, 28), Text = " " .. plr.DisplayName .. " (@" .. plr.Name .. ")", TextColor3 = Color3.fromRGB(255, 255, 255), BackgroundColor3 = Color3.fromRGB(50, 50, 50), Font = Enum.Font.SourceSans, TextSize = 12, TextXAlignment = 0, Active = true}, trollScrollList)
 			C("UICorner", {CornerRadius = UDim.new(0, 4)}, pBtn)
-			pBtn.MouseButton1Click:Connect(function() startTroll(plr) end)
+			pBtn.Activated:Connect(function() startTroll(plr) end)
 		end
 	end
 end
 
-toggleTrollBtn.MouseButton1Click:Connect(stopTroll)
-refreshTrollBtn.MouseButton1Click:Connect(updateTrollPlayerList)
+toggleTrollBtn.Activated:Connect(stopTroll)
+refreshTrollBtn.Activated:Connect(updateTrollPlayerList)
 
 LP.PlayerAdded:Connect(function() refreshPlayerList() updateTrollPlayerList() end)
 LP.PlayerRemoving:Connect(function(player)
@@ -440,11 +461,11 @@ refreshPlayerList() updateTrollPlayerList()
 -- 1. HÌNH DẠNG LOGO
 local LblShape = C("TextLabel", {Size = UDim2.new(1, 0, 0, 20), Text = "Hình dạng Logo:", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 14, Font = 4, TextXAlignment = 0, BackgroundTransparency = 1}, PSet)
 local ShapeFrame = C("Frame", {Size = UDim2.new(0.98, 0, 0, 35), BackgroundTransparency = 1}, PSet)
-local S1 = C("TextButton", {Size = UDim2.new(0.3, 0, 1, 0), Position = UDim2.new(0, 0, 0, 0), Text = "Tròn", TextColor3 = Color3.fromRGB(255, 255, 255), BackgroundColor3 = Color3.fromRGB(0, 170, 255)}, ShapeFrame)
+local S1 = C("TextButton", {Size = UDim2.new(0.3, 0, 1, 0), Position = UDim2.new(0, 0, 0, 0), Text = "Tròn", TextColor3 = Color3.fromRGB(255, 255, 255), BackgroundColor3 = Color3.fromRGB(0, 170, 255), Active = true}, ShapeFrame)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, S1)
-local S2 = C("TextButton", {Size = UDim2.new(0.3, 0, 1, 0), Position = UDim2.new(0.35, 0, 0, 0), Text = "Vuông", TextColor3 = Color3.fromRGB(200, 200, 200), BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, ShapeFrame)
+local S2 = C("TextButton", {Size = UDim2.new(0.3, 0, 1, 0), Position = UDim2.new(0.35, 0, 0, 0), Text = "Vuông", TextColor3 = Color3.fromRGB(200, 200, 200), BackgroundColor3 = Color3.fromRGB(35, 35, 42), Active = true}, ShapeFrame)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, S2)
-local S3 = C("TextButton", {Size = UDim2.new(0.3, 0, 1, 0), Position = UDim2.new(0.7, 0, 0, 0), Text = "Tam Giác", TextColor3 = Color3.fromRGB(200, 200, 200), BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, ShapeFrame)
+local S3 = C("TextButton", {Size = UDim2.new(0.3, 0, 1, 0), Position = UDim2.new(0.7, 0, 0, 0), Text = "Tam Giác", TextColor3 = Color3.fromRGB(200, 200, 200), BackgroundColor3 = Color3.fromRGB(35, 35, 42), Active = true}, ShapeFrame)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, S3)
 
 local function resetShapeBtns()
@@ -452,15 +473,15 @@ local function resetShapeBtns()
 	S1.TextColor3, S2.TextColor3, S3.TextColor3 = Color3.fromRGB(200, 200, 200), Color3.fromRGB(200, 200, 200), Color3.fromRGB(200, 200, 200)
 end
 
-S1.MouseButton1Click:Connect(function()
+S1.Activated:Connect(function()
 	resetShapeBtns() S1.BackgroundColor3 = Color3.fromRGB(0, 170, 255) S1.TextColor3 = Color3.fromRGB(255, 255, 255)
 	TBtnCorner.CornerRadius = UDim.new(0.5, 0)
 end)
-S2.MouseButton1Click:Connect(function()
+S2.Activated:Connect(function()
 	resetShapeBtns() S2.BackgroundColor3 = Color3.fromRGB(0, 170, 255) S2.TextColor3 = Color3.fromRGB(255, 255, 255)
 	TBtnCorner.CornerRadius = UDim.new(0, 4)
 end)
-S3.MouseButton1Click:Connect(function()
+S3.Activated:Connect(function()
 	resetShapeBtns() S3.BackgroundColor3 = Color3.fromRGB(0, 170, 255) S3.TextColor3 = Color3.fromRGB(255, 255, 255)
 	TBtnCorner.CornerRadius = UDim.new(0, 18)
 end)
@@ -468,11 +489,11 @@ end)
 -- 2. KÍCH THƯỚC LOGO
 local LblSize = C("TextLabel", {Size = UDim2.new(1, 0, 0, 20), Text = "Kích thước Logo:", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 14, Font = 4, TextXAlignment = 0, BackgroundTransparency = 1}, PSet)
 local SizeFrame = C("Frame", {Size = UDim2.new(0.98, 0, 0, 35), BackgroundTransparency = 1}, PSet)
-local Z1 = C("TextButton", {Size = UDim2.new(0.3, 0, 1, 0), Position = UDim2.new(0, 0, 0, 0), Text = "Nhỏ", TextColor3 = Color3.fromRGB(200, 200, 200), BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, SizeFrame)
+local Z1 = C("TextButton", {Size = UDim2.new(0.3, 0, 1, 0), Position = UDim2.new(0, 0, 0, 0), Text = "Nhỏ", TextColor3 = Color3.fromRGB(200, 200, 200), BackgroundColor3 = Color3.fromRGB(35, 35, 42), Active = true}, SizeFrame)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, Z1)
-local Z2 = C("TextButton", {Size = UDim2.new(0.3, 0, 1, 0), Position = UDim2.new(0.35, 0, 0, 0), Text = "Vừa", TextColor3 = Color3.fromRGB(255, 255, 255), BackgroundColor3 = Color3.fromRGB(0, 170, 255)}, SizeFrame)
+local Z2 = C("TextButton", {Size = UDim2.new(0.3, 0, 1, 0), Position = UDim2.new(0.35, 0, 0, 0), Text = "Vừa", TextColor3 = Color3.fromRGB(255, 255, 255), BackgroundColor3 = Color3.fromRGB(0, 170, 255), Active = true}, SizeFrame)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, Z2)
-local Z3 = C("TextButton", {Size = UDim2.new(0.3, 0, 1, 0), Position = UDim2.new(0.7, 0, 0, 0), Text = "To", TextColor3 = Color3.fromRGB(200, 200, 200), BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, SizeFrame)
+local Z3 = C("TextButton", {Size = UDim2.new(0.3, 0, 1, 0), Position = UDim2.new(0.7, 0, 0, 0), Text = "To", TextColor3 = Color3.fromRGB(200, 200, 200), BackgroundColor3 = Color3.fromRGB(35, 35, 42), Active = true}, SizeFrame)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, Z3)
 
 local function resetSizeBtns()
@@ -480,15 +501,15 @@ local function resetSizeBtns()
 	Z1.TextColor3, Z2.TextColor3, Z3.TextColor3 = Color3.fromRGB(200, 200, 200), Color3.fromRGB(200, 200, 200), Color3.fromRGB(200, 200, 200)
 end
 
-Z1.MouseButton1Click:Connect(function()
+Z1.Activated:Connect(function()
 	resetSizeBtns() Z1.BackgroundColor3 = Color3.fromRGB(0, 170, 255) Z1.TextColor3 = Color3.fromRGB(255, 255, 255)
 	TBtn.Size = UDim2.new(0, 40, 0, 40)
 end)
-Z2.MouseButton1Click:Connect(function()
+Z2.Activated:Connect(function()
 	resetSizeBtns() Z2.BackgroundColor3 = Color3.fromRGB(0, 170, 255) Z2.TextColor3 = Color3.fromRGB(255, 255, 255)
 	TBtn.Size = UDim2.new(0, 55, 0, 55)
 end)
-Z3.MouseButton1Click:Connect(function()
+Z3.Activated:Connect(function()
 	resetSizeBtns() Z3.BackgroundColor3 = Color3.fromRGB(0, 170, 255) Z3.TextColor3 = Color3.fromRGB(255, 255, 255)
 	TBtn.Size = UDim2.new(0, 70, 0, 70)
 end)
@@ -496,13 +517,13 @@ end)
 -- 3. MÀU CHỦ ĐẠO MENU
 local LblColor = C("TextLabel", {Size = UDim2.new(1, 0, 0, 20), Text = "Màu chủ đạo Menu:", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 14, Font = 4, TextXAlignment = 0, BackgroundTransparency = 1}, PSet)
 local ColorFrame = C("Frame", {Size = UDim2.new(0.98, 0, 0, 35), BackgroundTransparency = 1}, PSet)
-local C1 = C("TextButton", {Size = UDim2.new(0.22, 0, 1, 0), Position = UDim2.new(0, 0, 0, 0), Text = "Xanh", TextColor3 = Color3.fromRGB(255, 255, 255), BackgroundColor3 = Color3.fromRGB(0, 170, 255)}, ColorFrame)
+local C1 = C("TextButton", {Size = UDim2.new(0.22, 0, 1, 0), Position = UDim2.new(0, 0, 0, 0), Text = "Xanh", TextColor3 = Color3.fromRGB(255, 255, 255), BackgroundColor3 = Color3.fromRGB(0, 170, 255), Active = true}, ColorFrame)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, C1)
-local C2 = C("TextButton", {Size = UDim2.new(0.22, 0, 1, 0), Position = UDim2.new(0.26, 0, 0, 0), Text = "Đỏ", TextColor3 = Color3.fromRGB(255, 255, 255), BackgroundColor3 = Color3.fromRGB(255, 60, 60)}, ColorFrame)
+local C2 = C("TextButton", {Size = UDim2.new(0.22, 0, 1, 0), Position = UDim2.new(0.26, 0, 0, 0), Text = "Đỏ", TextColor3 = Color3.fromRGB(255, 255, 255), BackgroundColor3 = Color3.fromRGB(255, 60, 60), Active = true}, ColorFrame)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, C2)
-local C3 = C("TextButton", {Size = UDim2.new(0.22, 0, 1, 0), Position = UDim2.new(0.52, 0, 0, 0), Text = "Tím", TextColor3 = Color3.fromRGB(255, 255, 255), BackgroundColor3 = Color3.fromRGB(170, 0, 255)}, ColorFrame)
+local C3 = C("TextButton", {Size = UDim2.new(0.22, 0, 1, 0), Position = UDim2.new(0.52, 0, 0, 0), Text = "Tím", TextColor3 = Color3.fromRGB(255, 255, 255), BackgroundColor3 = Color3.fromRGB(170, 0, 255), Active = true}, ColorFrame)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, C3)
-local C4 = C("TextButton", {Size = UDim2.new(0.22, 0, 1, 0), Position = UDim2.new(0.78, 0, 0, 0), Text = "Lá", TextColor3 = Color3.fromRGB(255, 255, 255), BackgroundColor3 = Color3.fromRGB(0, 220, 100)}, ColorFrame)
+local C4 = C("TextButton", {Size = UDim2.new(0.22, 0, 1, 0), Position = UDim2.new(0.78, 0, 0, 0), Text = "Lá", TextColor3 = Color3.fromRGB(255, 255, 255), BackgroundColor3 = Color3.fromRGB(0, 220, 100), Active = true}, ColorFrame)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, C4)
 
 local function setThemeColor(color)
@@ -519,15 +540,16 @@ local function setThemeColor(color)
 	if TbSet.BackgroundColor3 == Color3.fromRGB(0, 170, 255) then TbSet.BackgroundColor3 = color end
 end
 
-C1.MouseButton1Click:Connect(function() setThemeColor(Color3.fromRGB(0, 170, 255)) end)
-C2.MouseButton1Click:Connect(function() setThemeColor(Color3.fromRGB(255, 60, 60)) end)
-C3.MouseButton1Click:Connect(function() setThemeColor(Color3.fromRGB(170, 0, 255)) end)
-C4.MouseButton1Click:Connect(function() setThemeColor(Color3.fromRGB(0, 220, 100)) end)
+C1.Activated:Connect(function() setThemeColor(Color3.fromRGB(0, 170, 255)) end)
+C2.Activated:Connect(function() setThemeColor(Color3.fromRGB(255, 60, 60)) end)
+C3.Activated:Connect(function() setThemeColor(Color3.fromRGB(170, 0, 255)) end)
+C4.Activated:Connect(function() setThemeColor(Color3.fromRGB(0, 220, 100)) end)
 
--- LOGIC MỜ/MỞ MENU CHÍNH
-TBtn.MouseButton1Click:Connect(function()
+-- LOGIC BẬT / TẮT MENU CHÍNH DÀNH RIÊNG CHO MOBILE & DELTA EXECUTOR
+TBtn.Activated:Connect(function()
 	Main.Visible = not Main.Visible
 end)
-CBtn.MouseButton1Click:Connect(function()
+
+CBtn.Activated:Connect(function()
 	Main.Visible = false
 end)
