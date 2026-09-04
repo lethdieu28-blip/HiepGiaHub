@@ -10,7 +10,7 @@ if not TargetParent then
 	TargetParent = LocalPlayer:FindFirstChild("CoreGui") or game:GetService("CoreGui")
 end
 
--- DỌN DẸP GUI CŨ
+-- DỌN DEEP GUI CŨ
 if TargetParent:FindFirstChild("HiepGiaHubFull") then
 	TargetParent.HiepGiaHubFull:Destroy()
 end
@@ -532,7 +532,7 @@ ToggleTrollBtn.MouseButton1Click:Connect(stopTroll)
 
 LP.PlayerAdded:Connect(updatePlayerList)
 LP.PlayerRemoving:Connect(function(plr)
-	if targetPlayer == plr me then
+	if targetPlayer == plr then
 		stopTroll()
 	end
 	updatePlayerList()
