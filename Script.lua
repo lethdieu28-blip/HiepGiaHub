@@ -103,7 +103,7 @@ local Sb = C("Frame", {Size = UDim2.new(0.25, 0, 1, -45), Position = UDim2.new(0
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, Sb)
 local Pc = C("Frame", {Size = UDim2.new(0.73, 0, 1, -45), Position = UDim2.new(0.26, 0, 0, 45), BackgroundTransparency = 1, ClipsDescendants = true}, Main)
 
--- TAB BUTTONS (TẠO 4 TAB)
+-- TAB BUTTONS
 local Tb1 = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 32), Position = UDim2.new(0.05, 0, 0, 10), Text = "Main", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(0, 170, 255)}, Sb)
 C("UICorner", {CornerRadius = UDim.new(0, 6)}, Tb1)
 
@@ -532,7 +532,7 @@ ToggleTrollBtn.MouseButton1Click:Connect(stopTroll)
 
 LP.PlayerAdded:Connect(updatePlayerList)
 LP.PlayerRemoving:Connect(function(plr)
-	if targetPlayer == plr then
+	if targetPlayer == plr me then
 		stopTroll()
 	end
 	updatePlayerList()
@@ -540,40 +540,51 @@ end)
 
 updatePlayerList()
 
--- ==================== TAB CATCHING UP (TAB RIÊNG BIỆT) ====================
+-- ==================== TAB CATCHING UP (FAST TELEPORT + DÒNG CHỮ ĐỎ) ====================
 local CatchBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Catching Up: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P4)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, CatchBtn)
 
+-- DÒNG CHỮ MÀU ĐỎ THÊM BÊN DƯỚI NÚT TELEPORT
+local CatchNotice = C("TextLabel", {
+	Size = UDim2.new(0.98, 0, 0, 20),
+	Text = "PHẦN NÀY DÀNH CHO GAME ĐUỔI BẮT",
+	TextColor3 = Color3.fromRGB(255, 50, 50),
+	TextSize = 12,
+	Font = Enum.Font.SourceSansBold,
+	BackgroundTransparency = 1
+}, P4)
+
 local isCatchingUp = false
-task.spawn(function()
-	while true do
-		if isCatchingUp then
-			local playersList = LP:GetPlayers()
-			for _, targetPlr in ipairs(playersList) do
-				if not isCatchingUp then break end
-				if targetPlr ~= LocalPlayer then
-					local timer = 0
-					while isCatchingUp and timer < 2 do
-						local myHrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-						local targetHrp = targetPlr.Character and targetPlr.Character:FindFirstChild("HumanoidRootPart")
-						if myHrp and targetHrp then
-							myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 2)
-						end
-						task.wait(0.1)
-						timer = timer + 0.1
-					end
-				end
-			end
-		else
-			task.wait(0.5)
-		end
-	end
-end)
+local catchConn = nil
 
 CatchBtn.MouseButton1Click:Connect(function()
 	isCatchingUp = not isCatchingUp
-	CatchBtn.Text = "Catching Up: " .. (isCatchingUp and "ON 🏃" or "OFF")
+	CatchBtn.Text = "Catching Up: " .. (isCatchingUp and "ON ⚡" or "OFF")
 	CatchBtn.TextColor3 = isCatchingUp and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
+	
+	if isCatchingUp then
+		catchConn = RS.Heartbeat:Connect(function()
+			local myChar = LocalPlayer.Character
+			local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
+			if not myHrp then return end
+			
+			for _, targetPlr in ipairs(LP:GetPlayers()) do
+				if not isCatchingUp then break end
+				if targetPlr ~= LocalPlayer and targetPlr.Character then
+					local targetHrp = targetPlr.Character:FindFirstChild("HumanoidRootPart")
+					local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
+					if targetHrp and targetHum and targetHum.Health > 0 then
+						myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 2)
+					end
+				end
+			end
+		end)
+	else
+		if catchConn then
+			catchConn:Disconnect()
+			catchConn = nil
+		end
+	end
 end)
 
 -- ==================== TAB 3 (SETTINGS) ====================
@@ -604,6 +615,7 @@ local DestroyBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "X�
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, DestroyBtn)
 DestroyBtn.MouseButton1Click:Connect(function()
 	if spinning then stopSpin() end
+	if catchConn then catchConn:Disconnect() end
 	SG:Destroy()
 end)
 
