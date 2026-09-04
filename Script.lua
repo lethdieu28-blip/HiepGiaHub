@@ -57,7 +57,7 @@ end
 
 -- NÚT TRÒN MỞ MENU
 local TBtn = C("ImageButton", {
-	Image = "rbxassetid://99351037294920",
+	Image = "rbxassetid://96342427921941",
 	Position = UDim2.new(0.05, 0, 0.2, 0),
 	Size = UDim2.new(0, 50, 0, 50),
 	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
@@ -560,7 +560,7 @@ local CatchScrollList = C("ScrollingFrame", {
 C("UICorner", {CornerRadius = UDim.new(0, 6)}, CatchScrollList)
 C("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 6)}, CatchScrollList)
 
--- Nút 1: Catching Up Nhanh (Gốc)
+-- Nút 1: Catching Up Nhanh
 local CatchBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Catching Up (Nhanh): OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, CatchScrollList)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, CatchBtn)
 
@@ -589,14 +589,20 @@ CatchBtn.MouseButton1Click:Connect(function()
 				for _, targetPlr in ipairs(playersList) do
 					if not isCatchingUp then break end
 					if targetPlr ~= LocalPlayer and targetPlr.Character then
-						local targetHrp = targetPlr.Character:FindFirstChild("HumanoidRootPart")
-						local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
-						local myChar = LocalPlayer.Character
-						local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
-						
-						if myHrp and targetHrp and targetHum and targetHum.Health > 0 then
-							myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 0.5)
-							task.wait(0.15)
+						local startTime = tick()
+						-- Bám liên tục theo lưng targetPlr trong 0.3 giây
+						while isCatchingUp and (tick() - startTime < 0.3) do
+							local targetHrp = targetPlr.Character:FindFirstChild("HumanoidRootPart")
+							local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
+							local myChar = LocalPlayer.Character
+							local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
+							
+							if myHrp and targetHrp and targetHum and targetHum.Health > 0 then
+								myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 0.5)
+							else
+								break
+							end
+							task.wait()
 						end
 					end
 				end
@@ -624,15 +630,20 @@ CatchSlowBtn.MouseButton1Click:Connect(function()
 				for _, targetPlr in ipairs(playersList) do
 					if not isCatchingUpSlow then break end
 					if targetPlr ~= LocalPlayer and targetPlr.Character then
-						local targetHrp = targetPlr.Character:FindFirstChild("HumanoidRootPart")
-						local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
-						local myChar = LocalPlayer.Character
-						local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
-						
-						if myHrp and targetHrp and targetHum and targetHum.Health > 0 then
-							myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 0.5)
-							-- Thời gian dừng ở lưng lâu hơn hẳn (2 giây) trước khi chuyển người tiếp theo
-							task.wait(2)
+						local startTime = tick()
+						-- Bám liên tục theo lưng targetPlr trong 5 giây trước khi chuyển sang người khác
+						while isCatchingUpSlow and (tick() - startTime < 5) do
+							local targetHrp = targetPlr.Character:FindFirstChild("HumanoidRootPart")
+							local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
+							local myChar = LocalPlayer.Character
+							local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
+							
+							if myHrp and targetHrp and targetHum and targetHum.Health > 0 then
+								myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 0.5)
+							else
+								break
+							end
+							task.wait()
 						end
 					end
 				end
