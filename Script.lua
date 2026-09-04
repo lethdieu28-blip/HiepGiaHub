@@ -81,13 +81,13 @@ end)
 
 drag(TBtn)
 
--- MAIN FRAME (TỰ ĐỘNG BẬT HIỆN DIỆN NGAY KHI CHẠY)
+-- MAIN FRAME
 local Main = C("Frame", {
 	AnchorPoint = Vector2.new(0.5, 0.5), 
 	Position = UDim2.new(0.5, 0, 0.5, 0), 
 	Size = UDim2.new(0.85, 0, 0.8, 0), 
 	BackgroundColor3 = Color3.fromRGB(25, 25, 30), 
-	Visible = true, -- Hiện luôn menu khi inject
+	Visible = true,
 	ClipsDescendants = true
 }, SG)
 C("UICorner", {CornerRadius = UDim.new(0, 12)}, Main)
@@ -103,12 +103,17 @@ local Sb = C("Frame", {Size = UDim2.new(0.25, 0, 1, -45), Position = UDim2.new(0
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, Sb)
 local Pc = C("Frame", {Size = UDim2.new(0.73, 0, 1, -45), Position = UDim2.new(0.26, 0, 0, 45), BackgroundTransparency = 1, ClipsDescendants = true}, Main)
 
--- TAB BUTTONS
+-- TAB BUTTONS (TẠO 4 TAB)
 local Tb1 = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 32), Position = UDim2.new(0.05, 0, 0, 10), Text = "Main", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(0, 170, 255)}, Sb)
 C("UICorner", {CornerRadius = UDim.new(0, 6)}, Tb1)
+
 local Tb2 = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 32), Position = UDim2.new(0.05, 0, 0, 48), Text = "Fly & TP", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(30, 30, 35)}, Sb)
 C("UICorner", {CornerRadius = UDim.new(0, 6)}, Tb2)
-local Tb3 = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 32), Position = UDim2.new(0.05, 0, 0, 86), Text = "Setting", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(30, 30, 35)}, Sb)
+
+local Tb4 = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 32), Position = UDim2.new(0.05, 0, 0, 86), Text = "Catching Up", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(30, 30, 35)}, Sb)
+C("UICorner", {CornerRadius = UDim.new(0, 6)}, Tb4)
+
+local Tb3 = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 32), Position = UDim2.new(0.05, 0, 0, 124), Text = "Setting", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(30, 30, 35)}, Sb)
 C("UICorner", {CornerRadius = UDim.new(0, 6)}, Tb3)
 
 -- TAB PAGES
@@ -118,10 +123,13 @@ C("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0,
 local P2 = C("ScrollingFrame", {Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Visible = false, ScrollBarThickness = 4, AutomaticCanvasSize = Enum.AutomaticSize.Y}, Pc)
 C("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 6)}, P2)
 
+local P4 = C("ScrollingFrame", {Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Visible = false, ScrollBarThickness = 4, AutomaticCanvasSize = Enum.AutomaticSize.Y}, Pc)
+C("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 6)}, P4)
+
 local P3 = C("ScrollingFrame", {Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Visible = false, ScrollBarThickness = 4, AutomaticCanvasSize = Enum.AutomaticSize.Y}, Pc)
 C("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 6)}, P3)
 
-local tabs = {[Tb1] = P1, [Tb2] = P2, [Tb3] = P3}
+local tabs = {[Tb1] = P1, [Tb2] = P2, [Tb4] = P4, [Tb3] = P3}
 for btn, page in pairs(tabs) do
 	btn.MouseButton1Click:Connect(function()
 		for b, p in pairs(tabs) do
@@ -532,6 +540,42 @@ end)
 
 updatePlayerList()
 
+-- ==================== TAB CATCHING UP (TAB RIÊNG BIỆT) ====================
+local CatchBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Catching Up: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P4)
+C("UICorner", {CornerRadius = UDim.new(0, 8)}, CatchBtn)
+
+local isCatchingUp = false
+task.spawn(function()
+	while true do
+		if isCatchingUp then
+			local playersList = LP:GetPlayers()
+			for _, targetPlr in ipairs(playersList) do
+				if not isCatchingUp then break end
+				if targetPlr ~= LocalPlayer then
+					local timer = 0
+					while isCatchingUp and timer < 2 do
+						local myHrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+						local targetHrp = targetPlr.Character and targetPlr.Character:FindFirstChild("HumanoidRootPart")
+						if myHrp and targetHrp then
+							myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 2)
+						end
+						task.wait(0.1)
+						timer = timer + 0.1
+					end
+				end
+			end
+		else
+			task.wait(0.5)
+		end
+	end
+end)
+
+CatchBtn.MouseButton1Click:Connect(function()
+	isCatchingUp = not isCatchingUp
+	CatchBtn.Text = "Catching Up: " .. (isCatchingUp and "ON 🏃" or "OFF")
+	CatchBtn.TextColor3 = isCatchingUp and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
+end)
+
 -- ==================== TAB 3 (SETTINGS) ====================
 local ResetBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Reset Character", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(180, 50, 50)}, P3)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, ResetBtn)
@@ -545,6 +589,15 @@ local RejoinBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Rej
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, RejoinBtn)
 RejoinBtn.MouseButton1Click:Connect(function()
 	game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
+end)
+
+-- TÍNH NĂNG HOP SERVER
+local HopBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Server Hop", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(0, 150, 200)}, P3)
+C("UICorner", {CornerRadius = UDim.new(0, 8)}, HopBtn)
+HopBtn.MouseButton1Click:Connect(function()
+	HopBtn.Text = "Finding Server..."
+	local TS = game:GetService("TeleportService")
+	TS:Teleport(game.PlaceId, LocalPlayer)
 end)
 
 local DestroyBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Xóa GUI (Unload Script)", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(120, 40, 40)}, P3)
