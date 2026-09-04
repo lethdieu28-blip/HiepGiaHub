@@ -541,9 +541,6 @@ end)
 updatePlayerList()
 
 -- ==================== TAB CATCHING UP (FAST TELEPORT LẦN LƯỢT CẢ SERVER) ====================
-local CatchBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Catching Up: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P4)
-C("UICorner", {CornerRadius = UDim.new(0, 8)}, CatchBtn)
-
 local CatchNotice = C("TextLabel", {
 	Size = UDim2.new(0.98, 0, 0, 20),
 	Text = "PHẦN NÀY DÀNH CHO GAME ĐUỔI BẮT",
@@ -553,11 +550,36 @@ local CatchNotice = C("TextLabel", {
 	BackgroundTransparency = 1
 }, P4)
 
+-- Danh sách kéo xuống (ScrollingFrame) cho Tab Catching Up
+local CatchScrollList = C("ScrollingFrame", {
+	Size = UDim2.new(0.98, 0, 0, 180),
+	BackgroundColor3 = Color3.fromRGB(20, 20, 28),
+	ScrollBarThickness = 4,
+	AutomaticCanvasSize = Enum.AutomaticSize.Y
+}, P4)
+C("UICorner", {CornerRadius = UDim.new(0, 6)}, CatchScrollList)
+C("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 6)}, CatchScrollList)
+
+-- Nút 1: Catching Up Nhanh (Gốc)
+local CatchBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Catching Up (Nhanh): OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, CatchScrollList)
+C("UICorner", {CornerRadius = UDim.new(0, 8)}, CatchBtn)
+
+-- Nút 2: Catching Up Chờ Lâu (Giữ lưng lâu hơn)
+local CatchSlowBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Catching Up (Chờ lâu): OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, CatchScrollList)
+C("UICorner", {CornerRadius = UDim.new(0, 8)}, CatchSlowBtn)
+
 local isCatchingUp = false
+local isCatchingUpSlow = false
 
 CatchBtn.MouseButton1Click:Connect(function()
+	if isCatchingUpSlow then
+		isCatchingUpSlow = false
+		CatchSlowBtn.Text = "Catching Up (Chờ lâu): OFF"
+		CatchSlowBtn.TextColor3 = Color3.fromRGB(255, 70, 70)
+	end
+	
 	isCatchingUp = not isCatchingUp
-	CatchBtn.Text = "Catching Up: " .. (isCatchingUp and "ON ⚡" or "OFF")
+	CatchBtn.Text = "Catching Up (Nhanh): " .. (isCatchingUp and "ON ⚡" or "OFF")
 	CatchBtn.TextColor3 = isCatchingUp and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
 	
 	if isCatchingUp then
@@ -573,10 +595,44 @@ CatchBtn.MouseButton1Click:Connect(function()
 						local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
 						
 						if myHrp and targetHrp and targetHum and targetHum.Health > 0 then
-							-- Teleport sát dính lưng (khoảng cách 0.5 stud)
 							myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 0.5)
-							-- Dừng lại một chút xíu (0.15 giây) rồi mới chuyển sang người tiếp theo
 							task.wait(0.15)
+						end
+					end
+				end
+				task.wait(0.05)
+			end
+		end)
+	end
+end)
+
+CatchSlowBtn.MouseButton1Click:Connect(function()
+	if isCatchingUp then
+		isCatchingUp = false
+		CatchBtn.Text = "Catching Up (Nhanh): OFF"
+		CatchBtn.TextColor3 = Color3.fromRGB(255, 70, 70)
+	end
+	
+	isCatchingUpSlow = not isCatchingUpSlow
+	CatchSlowBtn.Text = "Catching Up (Chờ lâu): " .. (isCatchingUpSlow and "ON ⏳" or "OFF")
+	CatchSlowBtn.TextColor3 = isCatchingUpSlow and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
+	
+	if isCatchingUpSlow then
+		task.spawn(function()
+			while isCatchingUpSlow do
+				local playersList = LP:GetPlayers()
+				for _, targetPlr in ipairs(playersList) do
+					if not isCatchingUpSlow then break end
+					if targetPlr ~= LocalPlayer and targetPlr.Character then
+						local targetHrp = targetPlr.Character:FindFirstChild("HumanoidRootPart")
+						local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
+						local myChar = LocalPlayer.Character
+						local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
+						
+						if myHrp and targetHrp and targetHum and targetHum.Health > 0 then
+							myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 0.5)
+							-- Thời gian dừng ở lưng lâu hơn hẳn (2 giây) trước khi chuyển người tiếp theo
+							task.wait(2)
 						end
 					end
 				end
@@ -614,6 +670,7 @@ C("UICorner", {CornerRadius = UDim.new(0, 8)}, DestroyBtn)
 DestroyBtn.MouseButton1Click:Connect(function()
 	if spinning then stopSpin() end
 	isCatchingUp = false
+	isCatchingUpSlow = false
 	SG:Destroy()
 end)
 
