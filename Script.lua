@@ -540,11 +540,10 @@ end)
 
 updatePlayerList()
 
--- ==================== TAB CATCHING UP (FAST TELEPORT + DÒNG CHỮ ĐỎ) ====================
+-- ==================== TAB CATCHING UP (FAST TELEPORT LẦN LƯỢT CẢ SERVER) ====================
 local CatchBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Catching Up: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P4)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, CatchBtn)
 
--- DÒNG CHỮ MÀU ĐỎ THÊM BÊN DƯỚI NÚT TELEPORT
 local CatchNotice = C("TextLabel", {
 	Size = UDim2.new(0.98, 0, 0, 20),
 	Text = "PHẦN NÀY DÀNH CHO GAME ĐUỔI BẮT",
@@ -555,7 +554,6 @@ local CatchNotice = C("TextLabel", {
 }, P4)
 
 local isCatchingUp = false
-local catchConn = nil
 
 CatchBtn.MouseButton1Click:Connect(function()
 	isCatchingUp = not isCatchingUp
@@ -563,27 +561,28 @@ CatchBtn.MouseButton1Click:Connect(function()
 	CatchBtn.TextColor3 = isCatchingUp and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
 	
 	if isCatchingUp then
-		catchConn = RS.Heartbeat:Connect(function()
-			local myChar = LocalPlayer.Character
-			local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
-			if not myHrp then return end
-			
-			for _, targetPlr in ipairs(LP:GetPlayers()) do
-				if not isCatchingUp then break end
-				if targetPlr ~= LocalPlayer and targetPlr.Character then
-					local targetHrp = targetPlr.Character:FindFirstChild("HumanoidRootPart")
-					local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
-					if targetHrp and targetHum and targetHum.Health > 0 then
-						myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 2)
+		task.spawn(function()
+			while isCatchingUp do
+				local playersList = LP:GetPlayers()
+				for _, targetPlr in ipairs(playersList) do
+					if not isCatchingUp then break end
+					if targetPlr ~= LocalPlayer and targetPlr.Character then
+						local targetHrp = targetPlr.Character:FindFirstChild("HumanoidRootPart")
+						local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
+						local myChar = LocalPlayer.Character
+						local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
+						
+						if myHrp and targetHrp and targetHum and targetHum.Health > 0 then
+							-- Teleport sát dính lưng (khoảng cách 0.5 stud)
+							myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 0.5)
+							-- Dừng lại một chút xíu (0.15 giây) rồi mới chuyển sang người tiếp theo
+							task.wait(0.15)
+						end
 					end
 				end
+				task.wait(0.05)
 			end
 		end)
-	else
-		if catchConn then
-			catchConn:Disconnect()
-			catchConn = nil
-		end
 	end
 end)
 
@@ -602,7 +601,6 @@ RejoinBtn.MouseButton1Click:Connect(function()
 	game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
 end)
 
--- TÍNH NĂNG HOP SERVER
 local HopBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Server Hop", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(0, 150, 200)}, P3)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, HopBtn)
 HopBtn.MouseButton1Click:Connect(function()
@@ -615,7 +613,7 @@ local DestroyBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "X�
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, DestroyBtn)
 DestroyBtn.MouseButton1Click:Connect(function()
 	if spinning then stopSpin() end
-	if catchConn then catchConn:Disconnect() end
+	isCatchingUp = false
 	SG:Destroy()
 end)
 
