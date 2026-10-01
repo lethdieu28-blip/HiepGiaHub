@@ -315,7 +315,7 @@ LocalPlayer.CharacterAdded:Connect(function()
 	end
 end)
 
--- ==================== TAB 2 (FLY & TP & CLICK TO FLY & TROLL) ====================
+-- ==================== TAB 2 (FLY & TP & CHẠM LÀ BAY) ====================
 local FBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Fly: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, FBtn)
 
@@ -373,48 +373,57 @@ FBtn.MouseButton1Click:Connect(function()
 	end
 end)
 
--- TÍNH NĂNG CHẠM LÀ BAY (CLICK TO MOVE / FLY TO POINT)
-local ClickFlyBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Chạm là bay: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
-C("UICorner", {CornerRadius = UDim.new(0, 8)}, ClickFlyBtn)
+-- TÍNH NĂNG CHẠM LÀ BAY (ĐẨY VĂNG NGƯỜI KHÁC KHI TIẾP XÚC GIỐNG TRONG VIDEO)
+local TouchFlyBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Chạm là bay (Đẩy người khác): OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
+C("UICorner", {CornerRadius = UDim.new(0, 8)}, TouchFlyBtn)
 
-local isClickFly = false
-local clickFlyConnection = nil
+local isTouchFly = false
+local touchFlyConnection = nil
 
-ClickFlyBtn.MouseButton1Click:Connect(function()
-	isClickFly = not isClickFly
-	ClickFlyBtn.Text = "Chạm là bay: " .. (isClickFly and "ON 👆✨" or "OFF")
-	ClickFlyBtn.TextColor3 = isClickFly and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
+local function setupTouchFly(character)
+	local hrp = character:WaitForChild("HumanoidRootPart", 5)
+	if not hrp then return end
 	
-	if isClickFly then
-		clickFlyConnection = UIS.InputBegan:Connect(function(input, gameProcessed)
-			if not isClickFly then return end
-			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-				-- Tránh bấm nhầm vào các nút trong Menu/UI của game
-				if gameProcessed then return end
-				
-				local mouse = LocalPlayer:GetMouse()
-				local targetPos = mouse.Hit
-				local char = LocalPlayer.Character
-				if char and char:FindFirstChild("HumanoidRootPart") and targetPos then
-					local hrp = char.HumanoidRootPart
-					local distance = (targetPos.Position - hrp.Position).Magnitude
-					local speed = 150 -- Tốc độ bay mượt tới điểm chọn
-					local timeToTravel = distance / speed
-					
-					-- Dùng Tween dịch chuyển mượt mà tới vị trí bấm
-					local tweenInfo = TweenInfo.new(timeToTravel, Enum.EasingStyle.Linear)
-					local tween = TS:Create(hrp, tweenInfo, {CFrame = CFrame.new(targetPos.Position + Vector3.new(0, 3, 0))})
-					tween:Play()
-					
-					-- Có thể hủy tween nếu di chuyển hoặc bấm điểm khác nếu muốn (tuỳ chọn)
-				end
+	if touchFlyConnection then touchFlyConnection:Disconnect() end
+	
+	touchFlyConnection = hrp.Touched:Connect(function(hit)
+		if not isTouchFly then return end
+		local hitChar = hit.Parent
+		local hitHum = hitChar:FindFirstChildOfClass("Humanoid")
+		local hitHrp = hitChar:FindFirstChild("HumanoidRootPart")
+		
+		if hitHum and hitHrp and hitChar ~= character then
+			-- Tính toán hướng lực đẩy văng đi thật mạnh
+			local direction = (hitHrp.Position - hrp.Position).Unit
+			local launchForce = (direction * 250) + Vector3.new(0, 150, 0)
+			
+			if hitHrp:IsA("BasePart") then
+				hitHrp.AssemblyLinearVelocity = launchForce
 			end
-		end)
-	else
-		if clickFlyConnection then
-			clickFlyConnection:Disconnect()
-			clickFlyConnection = nil
 		end
+	end)
+end
+
+TouchFlyBtn.MouseButton1Click:Connect(function()
+	isTouchFly = not isTouchFly
+	TouchFlyBtn.Text = "Chạm là bay: " .. (isTouchFly and "ON 💥" or "OFF")
+	TouchFlyBtn.TextColor3 = isTouchFly and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
+	
+	if isTouchFly then
+		if LocalPlayer.Character then
+			setupTouchFly(LocalPlayer.Character)
+		end
+	else
+		if touchFlyConnection then
+			touchFlyConnection:Disconnect()
+			touchFlyConnection = nil
+		end
+	end
+end)
+
+LocalPlayer.CharacterAdded:Connect(function(char)
+	if isTouchFly then
+		setupTouchFly(char)
 	end
 end)
 
@@ -722,7 +731,7 @@ DestroyBtn.MouseButton1Click:Connect(function()
 	if spinning then stopSpin() end
 	isCatchingUp = false
 	isCatchingUpSlow = false
-	if clickFlyConnection then clickFlyConnection:Disconnect() end
+	if touchFlyConnection then touchFlyConnection:Disconnect() end
 	SG:Destroy()
 end)
 
