@@ -315,7 +315,7 @@ LocalPlayer.CharacterAdded:Connect(function()
 	end
 end)
 
--- ==================== TAB 2 (FLY & TP & TROLL) ====================
+-- ==================== TAB 2 (FLY & TP & TOUCH FLING & ANTI-FLING) ====================
 local FBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Fly: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, FBtn)
 
@@ -387,6 +387,84 @@ TPBtn.MouseButton1Click:Connect(function()
 	TPBtn.Text = "Đã thêm TP Tool!"
 	task.wait(1)
 	TPBtn.Text = "Nhận Tool Teleport"
+end)
+
+-- ===== TÍCH HỢP TOUCH FLING & CHỐNG VĂNG VÀO TAB 2 =====
+C("TextLabel", {Size = UDim2.new(0.98, 0, 0, 20), Text = "--- TOUCH FLING & ANTI-FLING ---", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 12, Font = Enum.Font.SourceSansBold, BackgroundTransparency = 1}, P2)
+
+local FlingBtnTab = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Touch Fling (Chạm là bay): TẮT", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
+C("UICorner", {CornerRadius = UDim.new(0, 8)}, FlingBtnTab)
+
+local hiddenFlingTab = false
+FlingBtnTab.MouseButton1Click:Connect(function()
+	hiddenFlingTab = not hiddenFlingTab
+	if hiddenFlingTab then
+		FlingBtnTab.BackgroundColor3 = Color3.fromRGB(0, 150, 80)
+		FlingBtnTab.Text = "Touch Fling (Chạm là bay): BẬT"
+		FlingBtnTab.TextColor3 = Color3.fromRGB(255, 255, 255)
+	else
+		FlingBtnTab.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+		FlingBtnTab.Text = "Touch Fling (Chạm là bay): TẮT"
+		FlingBtnTab.TextColor3 = Color3.fromRGB(255, 70, 70)
+	end
+end)
+
+task.spawn(function()
+	while true do
+		RunService.Heartbeat:Wait()
+		if hiddenFlingTab then
+			local char = LocalPlayer.Character
+			local hrp = char and char:FindFirstChild("HumanoidRootPart")
+			if hrp then
+				local vel = hrp.AssemblyLinearVelocity
+				hrp.AssemblyLinearVelocity = vel * 10000 + Vector3.new(0, 10000, 0)
+				RunService.RenderStepped:Wait()
+				hrp.AssemblyLinearVelocity = vel
+			end
+		end
+	end
+end)
+
+local ReturnBtnTab = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Chống Văng (Tự Về Chỗ Cũ): BẬT", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(0, 150, 80)}, P2)
+C("UICorner", {CornerRadius = UDim.new(0, 8)}, ReturnBtnTab)
+
+local autoReturnActiveTab = true
+ReturnBtnTab.MouseButton1Click:Connect(function()
+	autoReturnActiveTab = not autoReturnActiveTab
+	if autoReturnActiveTab then
+		ReturnBtnTab.BackgroundColor3 = Color3.fromRGB(0, 150, 80)
+		ReturnBtnTab.Text = "Chống Văng (Tự Về Chỗ Cũ): BẬT"
+	else
+		ReturnBtnTab.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+		ReturnBtnTab.Text = "Chống Văng (Tự Về Chỗ Cũ): TẮT"
+	end
+end)
+
+local lastSafeCFrameTab = nil
+task.spawn(function()
+	while true do
+		task.wait(0.6)
+		local char = LocalPlayer.Character
+		if char and char:FindFirstChild("HumanoidRootPart") then
+			local hrp = char.HumanoidRootPart
+			if hrp.AssemblyLinearVelocity.Magnitude < 45 then
+				lastSafeCFrameTab = hrp.CFrame
+			end
+		end
+	end
+end)
+
+RS.Heartbeat:Connect(function()
+	if autoReturnActiveTab and lastSafeCFrameTab then
+		local char = LocalPlayer.Character
+		if char and char:FindFirstChild("HumanoidRootPart") then
+			local hrp = char.HumanoidRootPart
+			if hrp.AssemblyLinearVelocity.Magnitude > 400 then
+				hrp.CFrame = lastSafeCFrameTab
+				hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+			end
+		end
+	end
 end)
 
 -- PLAYER TRACKER POPUP & TOGGLE
