@@ -315,7 +315,7 @@ LocalPlayer.CharacterAdded:Connect(function()
 	end
 end)
 
--- ==================== TAB 2 (FLY & TP & CHẠM LÀ BAY) ====================
+-- ==================== TAB 2 (FLY & TP & TOUCH FLING MỚI) ====================
 local FBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Fly: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, FBtn)
 
@@ -373,57 +373,37 @@ FBtn.MouseButton1Click:Connect(function()
 	end
 end)
 
--- TÍNH NĂNG CHẠM LÀ BAY (ĐẨY VĂNG NGƯỜI KHÁC KHI TIẾP XÚC GIỐNG TRONG VIDEO)
-local TouchFlyBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Chạm là bay (Đẩy người khác): OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
-C("UICorner", {CornerRadius = UDim.new(0, 8)}, TouchFlyBtn)
+-- TOUCH FLING (CHẠM LÀ BAY MỚI)
+local TouchFlingBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Touch Fling: TẮT", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(150, 50, 50)}, P2)
+C("UICorner", {CornerRadius = UDim.new(0, 8)}, TouchFlingBtn)
 
-local isTouchFly = false
-local touchFlyConnection = nil
-
-local function setupTouchFly(character)
-	local hrp = character:WaitForChild("HumanoidRootPart", 5)
-	if not hrp then return end
-	
-	if touchFlyConnection then touchFlyConnection:Disconnect() end
-	
-	touchFlyConnection = hrp.Touched:Connect(function(hit)
-		if not isTouchFly then return end
-		local hitChar = hit.Parent
-		local hitHum = hitChar:FindFirstChildOfClass("Humanoid")
-		local hitHrp = hitChar:FindFirstChild("HumanoidRootPart")
-		
-		if hitHum and hitHrp and hitChar ~= character then
-			-- Tính toán hướng lực đẩy văng đi thật mạnh
-			local direction = (hitHrp.Position - hrp.Position).Unit
-			local launchForce = (direction * 250) + Vector3.new(0, 150, 0)
-			
-			if hitHrp:IsA("BasePart") then
-				hitHrp.AssemblyLinearVelocity = launchForce
-			end
-		end
-	end)
-end
-
-TouchFlyBtn.MouseButton1Click:Connect(function()
-	isTouchFly = not isTouchFly
-	TouchFlyBtn.Text = "Chạm là bay: " .. (isTouchFly and "ON 💥" or "OFF")
-	TouchFlyBtn.TextColor3 = isTouchFly and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
-	
-	if isTouchFly then
-		if LocalPlayer.Character then
-			setupTouchFly(LocalPlayer.Character)
-		end
+local hiddenFling = false
+TouchFlingBtn.MouseButton1Click:Connect(function()
+	hiddenFling = not hiddenFling
+	if hiddenFling then
+		TouchFlingBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 80)
+		TouchFlingBtn.Text = "Touch Fling: BẬT"
+		TouchFlingBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 	else
-		if touchFlyConnection then
-			touchFlyConnection:Disconnect()
-			touchFlyConnection = nil
-		end
+		TouchFlingBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+		TouchFlingBtn.Text = "Touch Fling: TẮT"
+		TouchFlingBtn.TextColor3 = Color3.fromRGB(255, 70, 70)
 	end
 end)
 
-LocalPlayer.CharacterAdded:Connect(function(char)
-	if isTouchFly then
-		setupTouchFly(char)
+task.spawn(function()
+	while true do
+		RS.Heartbeat:Wait()
+		if hiddenFling then
+			local char = LocalPlayer.Character
+			local hrp = char and char:FindFirstChild("HumanoidRootPart")
+			if hrp then
+				local vel = hrp.AssemblyLinearVelocity
+				hrp.AssemblyLinearVelocity = vel * 10000 + Vector3.new(0, 10000, 0)
+				RS.RenderStepped:Wait()
+				hrp.AssemblyLinearVelocity = vel
+			end
+		end
 	end
 end)
 
@@ -731,7 +711,6 @@ DestroyBtn.MouseButton1Click:Connect(function()
 	if spinning then stopSpin() end
 	isCatchingUp = false
 	isCatchingUpSlow = false
-	if touchFlyConnection then touchFlyConnection:Disconnect() end
 	SG:Destroy()
 end)
 
