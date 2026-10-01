@@ -315,7 +315,7 @@ LocalPlayer.CharacterAdded:Connect(function()
 	end
 end)
 
--- ==================== TAB 2 (FLY & TP & TROLL) ====================
+-- ==================== TAB 2 (FLY & TP & CLICK TO FLY & TROLL) ====================
 local FBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Fly: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, FBtn)
 
@@ -370,6 +370,51 @@ FBtn.MouseButton1Click:Connect(function()
 		if flyC then flyC:Disconnect() end
 		if bV then bV:Destroy() end
 		if bG then bG:Destroy() end
+	end
+end)
+
+-- TÍNH NĂNG CHẠM LÀ BAY (CLICK TO MOVE / FLY TO POINT)
+local ClickFlyBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Chạm là bay: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
+C("UICorner", {CornerRadius = UDim.new(0, 8)}, ClickFlyBtn)
+
+local isClickFly = false
+local clickFlyConnection = nil
+
+ClickFlyBtn.MouseButton1Click:Connect(function()
+	isClickFly = not isClickFly
+	ClickFlyBtn.Text = "Chạm là bay: " .. (isClickFly and "ON 👆✨" or "OFF")
+	ClickFlyBtn.TextColor3 = isClickFly and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
+	
+	if isClickFly then
+		clickFlyConnection = UIS.InputBegan:Connect(function(input, gameProcessed)
+			if not isClickFly then return end
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				-- Tránh bấm nhầm vào các nút trong Menu/UI của game
+				if gameProcessed then return end
+				
+				local mouse = LocalPlayer:GetMouse()
+				local targetPos = mouse.Hit
+				local char = LocalPlayer.Character
+				if char and char:FindFirstChild("HumanoidRootPart") and targetPos then
+					local hrp = char.HumanoidRootPart
+					local distance = (targetPos.Position - hrp.Position).Magnitude
+					local speed = 150 -- Tốc độ bay mượt tới điểm chọn
+					local timeToTravel = distance / speed
+					
+					-- Dùng Tween dịch chuyển mượt mà tới vị trí bấm
+					local tweenInfo = TweenInfo.new(timeToTravel, Enum.EasingStyle.Linear)
+					local tween = TS:Create(hrp, tweenInfo, {CFrame = CFrame.new(targetPos.Position + Vector3.new(0, 3, 0))})
+					tween:Play()
+					
+					-- Có thể hủy tween nếu di chuyển hoặc bấm điểm khác nếu muốn (tuỳ chọn)
+				end
+			end
+		end)
+	else
+		if clickFlyConnection then
+			clickFlyConnection:Disconnect()
+			clickFlyConnection = nil
+		end
 	end
 end)
 
@@ -540,7 +585,7 @@ end)
 
 updatePlayerList()
 
--- ==================== TAB CATCHING UP (FAST TELEPORT LẦN LƯỢT CẢ SERVER) ====================
+-- ==================== TAB CATCHING UP ====================
 local CatchNotice = C("TextLabel", {
 	Size = UDim2.new(0.98, 0, 0, 20),
 	Text = "PHẦN NÀY DÀNH CHO GAME ĐUỔI BẮT",
@@ -550,7 +595,6 @@ local CatchNotice = C("TextLabel", {
 	BackgroundTransparency = 1
 }, P4)
 
--- Danh sách kéo xuống (ScrollingFrame) cho Tab Catching Up
 local CatchScrollList = C("ScrollingFrame", {
 	Size = UDim2.new(0.98, 0, 0, 180),
 	BackgroundColor3 = Color3.fromRGB(20, 20, 28),
@@ -560,11 +604,9 @@ local CatchScrollList = C("ScrollingFrame", {
 C("UICorner", {CornerRadius = UDim.new(0, 6)}, CatchScrollList)
 C("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 6)}, CatchScrollList)
 
--- Nút 1: Catching Up Nhanh
 local CatchBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Catching Up (Nhanh): OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, CatchScrollList)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, CatchBtn)
 
--- Nút 2: Catching Up Chờ Lâu (Giữ lưng lâu hơn)
 local CatchSlowBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Catching Up (Chờ lâu): OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, CatchScrollList)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, CatchSlowBtn)
 
@@ -590,7 +632,6 @@ CatchBtn.MouseButton1Click:Connect(function()
 					if not isCatchingUp then break end
 					if targetPlr ~= LocalPlayer and targetPlr.Character then
 						local startTime = tick()
-						-- Bám liên tục theo lưng targetPlr trong 0.3 giây
 						while isCatchingUp and (tick() - startTime < 0.3) do
 							local targetHrp = targetPlr.Character:FindFirstChild("HumanoidRootPart")
 							local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
@@ -631,7 +672,6 @@ CatchSlowBtn.MouseButton1Click:Connect(function()
 					if not isCatchingUpSlow then break end
 					if targetPlr ~= LocalPlayer and targetPlr.Character then
 						local startTime = tick()
-						-- Bám liên tục theo lưng targetPlr trong 5 giây trước khi chuyển sang người khác
 						while isCatchingUpSlow and (tick() - startTime < 5) do
 							local targetHrp = targetPlr.Character:FindFirstChild("HumanoidRootPart")
 							local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
@@ -682,6 +722,7 @@ DestroyBtn.MouseButton1Click:Connect(function()
 	if spinning then stopSpin() end
 	isCatchingUp = false
 	isCatchingUpSlow = false
+	if clickFlyConnection then clickFlyConnection:Disconnect() end
 	SG:Destroy()
 end)
 
