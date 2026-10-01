@@ -95,7 +95,7 @@ C("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 2}, Main)
 drag(Main)
 
 local Hd = C("Frame", {Size = UDim2.new(1, 0, 0, 40), BackgroundColor3 = Color3.fromRGB(15, 15, 20)}, Main)
-C("TextLabel", {Size = UDim2.new(0.7, 0, 1, 0), Position = UDim2.new(0.03, 0, 0, 0), Text = "HiepGia—Hub Full (Anti-Death)", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 16, Font = Enum.Font.SourceSansBold, TextXAlignment = 0, BackgroundTransparency = 1}, Hd)
+C("TextLabel", {Size = UDim2.new(0.7, 0, 1, 0), Position = UDim2.new(0.03, 0, 0, 0), Text = "HiepGia—Hub Full", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 18, Font = Enum.Font.SourceSansBold, TextXAlignment = 0, BackgroundTransparency = 1}, Hd)
 local CBtn = C("TextButton", {Size = UDim2.new(0, 30, 0, 30), Position = UDim2.new(1, -35, 0.5, -15), Text = "✕", TextColor3 = Color3.fromRGB(255, 80, 80), TextSize = 16, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 40)}, Hd)
 C("UICorner", {CornerRadius = UDim.new(0, 6)}, CBtn)
 
@@ -240,7 +240,82 @@ InfJBtn.MouseButton1Click:Connect(function()
 	InfJBtn.TextColor3 = isInfJump and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
 end)
 
--- ==================== TAB 2 (FLY & TP & TOUCH FLING AN TOÀN) ====================
+-- SPINBOT
+local SpinBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "SPINBOT: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P1)
+C("UICorner", {CornerRadius = UDim.new(0, 8)}, SpinBtn)
+local SpeedInput = C("TextBox", {Size = UDim2.new(0.98, 0, 0, 32), Text = "100", PlaceholderText = "Tốc độ xoay (1-10000)", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(20, 20, 28)}, P1)
+C("UICorner", {CornerRadius = UDim.new(0, 6)}, SpeedInput)
+
+local spinning, spinVelocity = false, nil
+
+local function stopSpin()
+	spinning = false
+	SpinBtn.Text = "SPINBOT: OFF"
+	SpinBtn.TextColor3 = Color3.fromRGB(255, 70, 70)
+	
+	if spinVelocity then
+		spinVelocity:Destroy()
+		spinVelocity = nil
+	end
+	
+	local char = LocalPlayer.Character
+	if char and char:FindFirstChildOfClass("Humanoid") then
+		local hum = char:FindFirstChildOfClass("Humanoid")
+		hum.AutoRotate = true
+		hum:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
+		hum:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
+	end
+end
+
+SpinBtn.MouseButton1Click:Connect(function()
+	spinning = not spinning
+	if spinning then
+		local char = LocalPlayer.Character
+		if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChildOfClass("Humanoid") then
+			if spinVelocity then spinVelocity:Destroy() end
+			
+			local hum = char:FindFirstChildOfClass("Humanoid")
+			hum.AutoRotate = false
+			hum:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+			hum:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+			
+			spinVelocity = Instance.new("BodyAngularVelocity")
+			spinVelocity.Name = "SpinBotVelocity"
+			spinVelocity.MaxTorque = Vector3.new(0, math.huge, 0)
+			
+			local rawSpeed = tonumber(SpeedInput.Text) or 100
+			local speed = math.clamp(rawSpeed, 1, 10000)
+			SpeedInput.Text = tostring(speed)
+			
+			spinVelocity.AngularVelocity = Vector3.new(0, speed, 0)
+			spinVelocity.Parent = char.HumanoidRootPart
+			
+			SpinBtn.Text = "SPINBOT: ON 🌀"
+			SpinBtn.TextColor3 = Color3.fromRGB(80, 255, 80)
+		else
+			spinning = false
+		end
+	else
+		stopSpin()
+	end
+end)
+
+SpeedInput.FocusLost:Connect(function()
+	local rawSpeed = tonumber(SpeedInput.Text) or 100
+	local speed = math.clamp(rawSpeed, 1, 10000)
+	SpeedInput.Text = tostring(speed)
+	if spinning and spinVelocity then
+		spinVelocity.AngularVelocity = Vector3.new(0, speed, 0)
+	end
+end)
+
+LocalPlayer.CharacterAdded:Connect(function()
+	if spinning then
+		stopSpin()
+	end
+end)
+
+-- ==================== TAB 2 (FLY & TP & TROLL) ====================
 local FBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Fly: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, FBtn)
 
@@ -312,57 +387,6 @@ TPBtn.MouseButton1Click:Connect(function()
 	TPBtn.Text = "Đã thêm TP Tool!"
 	task.wait(1)
 	TPBtn.Text = "Nhận Tool Teleport"
-end)
-
--- ===== TOUCH FLING AN TOÀN CHO GAME THIÊN TAI (CHỐNG GÂY SÁT THƯƠNG TỰ SÁT) =====
-C("TextLabel", {Size = UDim2.new(0.98, 0, 0, 20), Text = "--- TOUCH FLING (CHỐNG CHẾT) ---", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 12, Font = Enum.Font.SourceSansBold, BackgroundTransparency = 1}, P2)
-
-local FlingBtnTab = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Touch Fling: TẮT", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
-C("UICorner", {CornerRadius = UDim.new(0, 8)}, FlingBtnTab)
-
-local touchFlingActive = false
-FlingBtnTab.MouseButton1Click:Connect(function()
-	touchFlingActive = not touchFlingActive
-	if touchFlingActive then
-		FlingBtnTab.BackgroundColor3 = Color3.fromRGB(0, 150, 80)
-		FlingBtnTab.Text = "Touch Fling: BẬT"
-		FlingBtnTab.TextColor3 = Color3.fromRGB(255, 255, 255)
-	else
-		FlingBtnTab.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
-		FlingBtnTab.Text = "Touch Fling: TẮT"
-		FlingBtnTab.TextColor3 = Color3.fromRGB(255, 70, 70)
-	end
-end)
-
-task.spawn(function()
-	RS.Heartbeat:Connect(function()
-		if touchFlingActive then
-			local character = LocalPlayer.Character
-			local hrp = character and character:FindFirstChild("HumanoidRootPart")
-			local hum = character and character:FindFirstChildOfClass("Humanoid")
-			
-			if hrp and hum and hum.Health > 0 then
-				-- Khóa mọi trạng thái có thể gây chết do va chạm vật lý/rơi ngã trong NDS
-				hum:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
-				hum:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
-				hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
-				
-				-- Giảm lực va chạm quá đà để game không trừ máu
-				pcall(function()
-					for _, part in ipairs(character:GetDescendants()) do
-						if part:IsA("BasePart") then
-							part.CustomPhysicalProperties = PhysicalProperties.new(0.01, 0.01, 0, 0, 0)
-						end
-					end
-				end)
-				
-				local currentVel = hrp.AssemblyLinearVelocity
-				hrp.AssemblyLinearVelocity = currentVel * 150 + Vector3.new(0, 350, 0)
-				RS.RenderStepped:Wait()
-				hrp.AssemblyLinearVelocity = currentVel
-			end
-		end
-	end)
 end)
 
 -- PLAYER TRACKER POPUP & TOGGLE
@@ -455,7 +479,68 @@ LP.PlayerAdded:Connect(refreshTrackerList)
 LP.PlayerRemoving:Connect(refreshTrackerList)
 refreshTrackerList()
 
--- ==================== TAB CATCHING UP ====================
+-- TROLL PLAYER
+C("TextLabel", {Size = UDim2.new(0.98, 0, 0, 20), Text = "--- TROLL PLAYER 🤫 ---", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 12, Font = Enum.Font.SourceSansBold, BackgroundTransparency = 1}, P2)
+local ToggleTrollBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "CHỌN NGƯỜI ĐỂ TROLL", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 12, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(100, 100, 100)}, P2)
+C("UICorner", {CornerRadius = UDim.new(0, 8)}, ToggleTrollBtn)
+
+local ScrollList = C("ScrollingFrame", {Size = UDim2.new(0.98, 0, 0, 100), BackgroundColor3 = Color3.fromRGB(20, 20, 28), ScrollBarThickness = 4, AutomaticCanvasSize = Enum.AutomaticSize.Y}, P2)
+C("UICorner", {CornerRadius = UDim.new(0, 6)}, ScrollList)
+C("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 4)}, ScrollList)
+
+local targetPlayer, isTrolling, trollConn = nil, false, nil
+local function stopTroll()
+	isTrolling = false
+	targetPlayer = nil
+	ToggleTrollBtn.Text = "CHỌN NGƯỜI ĐỂ TROLL"
+	ToggleTrollBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+	if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then Camera.CameraSubject = LocalPlayer.Character.Humanoid end
+	if trollConn then trollConn:Disconnect() end
+end
+
+local function updatePlayerList()
+	for _, child in pairs(ScrollList:GetChildren()) do
+		if child:IsA("TextButton") then child:Destroy() end
+	end
+	for _, plr in pairs(LP:GetPlayers()) do
+		if plr ~= LocalPlayer then
+			local pBtn = C("TextButton", {Size = UDim2.new(1, -4, 0, 25), Text = plr.DisplayName, TextColor3 = Color3.fromRGB(255, 255, 255), BackgroundColor3 = Color3.fromRGB(45, 45, 55), Font = Enum.Font.SourceSans, TextSize = 12}, ScrollList)
+			C("UICorner", {CornerRadius = UDim.new(0, 4)}, pBtn)
+			pBtn.MouseButton1Click:Connect(function()
+				targetPlayer = plr
+				isTrolling = true
+				ToggleTrollBtn.Text = "TẮT TROLL: " .. plr.DisplayName
+				ToggleTrollBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
+				if trollConn then trollConn:Disconnect() end
+				local cT = 0
+				trollConn = RS.RenderStepped:Connect(function(dt)
+					if not isTrolling or not targetPlayer or not targetPlayer.Character then stopTroll() return end
+					local myHrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+					local targetHrp = targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+					if myHrp and targetHrp then
+						Camera.CameraSubject = targetPlayer.Character:FindFirstChild("Humanoid")
+						cT = cT + dt * 10
+						myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 1.5 + math.sin(cT) * 0.5)
+					end
+				end)
+			end)
+		end
+	end
+end
+
+ToggleTrollBtn.MouseButton1Click:Connect(stopTroll)
+
+LP.PlayerAdded:Connect(updatePlayerList)
+LP.PlayerRemoving:Connect(function(plr)
+	if targetPlayer == plr then
+		stopTroll()
+	end
+	updatePlayerList()
+end)
+
+updatePlayerList()
+
+-- ==================== TAB CATCHING UP (FAST TELEPORT LẦN LƯỢT CẢ SERVER) ====================
 local CatchNotice = C("TextLabel", {
 	Size = UDim2.new(0.98, 0, 0, 20),
 	Text = "PHẦN NÀY DÀNH CHO GAME ĐUỔI BẮT",
@@ -465,6 +550,7 @@ local CatchNotice = C("TextLabel", {
 	BackgroundTransparency = 1
 }, P4)
 
+-- Danh sách kéo xuống (ScrollingFrame) cho Tab Catching Up
 local CatchScrollList = C("ScrollingFrame", {
 	Size = UDim2.new(0.98, 0, 0, 180),
 	BackgroundColor3 = Color3.fromRGB(20, 20, 28),
@@ -474,9 +560,11 @@ local CatchScrollList = C("ScrollingFrame", {
 C("UICorner", {CornerRadius = UDim.new(0, 6)}, CatchScrollList)
 C("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 6)}, CatchScrollList)
 
+-- Nút 1: Catching Up Nhanh
 local CatchBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Catching Up (Nhanh): OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, CatchScrollList)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, CatchBtn)
 
+-- Nút 2: Catching Up Chờ Lâu (Giữ lưng lâu hơn)
 local CatchSlowBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Catching Up (Chờ lâu): OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, CatchScrollList)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, CatchSlowBtn)
 
@@ -502,6 +590,7 @@ CatchBtn.MouseButton1Click:Connect(function()
 					if not isCatchingUp then break end
 					if targetPlr ~= LocalPlayer and targetPlr.Character then
 						local startTime = tick()
+						-- Bám liên tục theo lưng targetPlr trong 0.3 giây
 						while isCatchingUp and (tick() - startTime < 0.3) do
 							local targetHrp = targetPlr.Character:FindFirstChild("HumanoidRootPart")
 							local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
@@ -542,6 +631,7 @@ CatchSlowBtn.MouseButton1Click:Connect(function()
 					if not isCatchingUpSlow then break end
 					if targetPlr ~= LocalPlayer and targetPlr.Character then
 						local startTime = tick()
+						-- Bám liên tục theo lưng targetPlr trong 5 giây trước khi chuyển sang người khác
 						while isCatchingUpSlow and (tick() - startTime < 5) do
 							local targetHrp = targetPlr.Character:FindFirstChild("HumanoidRootPart")
 							local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
@@ -589,6 +679,7 @@ end)
 local DestroyBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Xóa GUI (Unload Script)", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(120, 40, 40)}, P3)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, DestroyBtn)
 DestroyBtn.MouseButton1Click:Connect(function()
+	if spinning then stopSpin() end
 	isCatchingUp = false
 	isCatchingUpSlow = false
 	SG:Destroy()
