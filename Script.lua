@@ -81,11 +81,11 @@ end)
 
 drag(TBtn)
 
--- MAIN FRAME
+-- MAIN FRAME (ĐÃ ĐƯỢC THU PHÓNG TO HƠN)
 local Main = C("Frame", {
 	AnchorPoint = Vector2.new(0.5, 0.5), 
 	Position = UDim2.new(0.5, 0, 0.5, 0), 
-	Size = UDim2.new(0.85, 0, 0.8, 0), 
+	Size = UDim2.new(0.92, 0, 0.88, 0), 
 	BackgroundColor3 = Color3.fromRGB(25, 25, 30), 
 	Visible = true,
 	ClipsDescendants = true
@@ -240,83 +240,6 @@ InfJBtn.MouseButton1Click:Connect(function()
 	InfJBtn.TextColor3 = isInfJump and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
 end)
 
--- ==================== FIX ZOOM TOÀN CẢNH SIÊU MẠNH (ĐÃ NÂNG CỰC ĐẠI FOV 500) ====================
-local ZoomBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Zoom Toàn Cảnh (+ / -): OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P1)
-C("UICorner", {CornerRadius = UDim.new(0, 8)}, ZoomBtn)
-local isZoomOut = false
-
-local ZoomControlFrame = C("Frame", {
-	Size = UDim2.new(0, 110, 0, 50),
-	Position = UDim2.new(0.05, 0, 0.45, 0),
-	BackgroundTransparency = 1,
-	Visible = false,
-	Active = true
-}, SG)
-drag(ZoomControlFrame)
-
-local ZoomInBtn = C("TextButton", {
-	Size = UDim2.new(0, 45, 0, 45),
-	Position = UDim2.new(0, 0, 0, 0),
-	Text = "-",
-	TextColor3 = Color3.fromRGB(255, 255, 255),
-	TextSize = 24,
-	Font = Enum.Font.SourceSansBold,
-	BackgroundColor3 = Color3.fromRGB(40, 40, 50),
-	BackgroundTransparency = 0.3
-}, ZoomControlFrame)
-C("UICorner", {CornerRadius = UDim.new(1, 0)}, ZoomInBtn)
-C("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 2}, ZoomInBtn)
-
-local ZoomOutBtn = C("TextButton", {
-	Size = UDim2.new(0, 45, 0, 45),
-	Position = UDim2.new(0, 55, 0, 0),
-	Text = "+",
-	TextColor3 = Color3.fromRGB(255, 255, 255),
-	TextSize = 24,
-	Font = Enum.Font.SourceSansBold,
-	BackgroundColor3 = Color3.fromRGB(40, 40, 50),
-	BackgroundTransparency = 0.3
-}, ZoomControlFrame)
-C("UICorner", {CornerRadius = UDim.new(1, 0)}, ZoomOutBtn)
-C("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 2}, ZoomOutBtn)
-
-local customFOV = 150 -- Tăng mức khởi điểm rộng hơn nữa
-
-ZoomOutBtn.MouseButton1Click:Connect(function()
-	if isZoomOut then
-		customFOV = math.min(customFOV + 35, 500) -- Bấm + để kéo FOV vươn tít ra xa tận trời (tối đa 500)
-	end
-end)
-
-ZoomInBtn.MouseButton1Click:Connect(function()
-	if isZoomOut then
-		customFOV = math.max(customFOV - 35, 10) -- Bấm - để thu nhỏ lại
-	end
-end)
-
-ZoomBtn.MouseButton1Click:Connect(function()
-	isZoomOut = not isZoomOut
-	ZoomBtn.Text = "Zoom Toàn Cảnh (+ / -): " .. (isZoomOut and "ON 🔍" or "OFF")
-	ZoomBtn.TextColor3 = isZoomOut and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
-	ZoomControlFrame.Visible = isZoomOut
-	if not isZoomOut then
-		workspace.CurrentCamera.FieldOfView = 70
-	end
-end)
-
-RS.RenderStepped:Connect(function()
-	if isZoomOut then
-		pcall(function()
-			LocalPlayer.CameraMaxZoomDistance = 9999999999
-			LocalPlayer.CameraMinZoomDistance = 0.1
-			local cam = workspace.CurrentCamera
-			if cam then
-				cam.FieldOfView = customFOV
-			end
-		end)
-	end
-end)
-
 -- SPINBOT
 local SpinBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "SPINBOT: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P1)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, SpinBtn)
@@ -392,7 +315,7 @@ LocalPlayer.CharacterAdded:Connect(function()
 	end
 end)
 
--- ==================== TAB 2 (FLY & TP & TOUCH FLING) ====================
+-- ==================== TAB 2 (FLY & TP & TOUCH FLING MỚI) ====================
 local FBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Fly: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, FBtn)
 
@@ -500,7 +423,7 @@ TPBtn.MouseButton1Click:Connect(function()
 	TPBtn.Text = "Nhận Tool Teleport"
 end)
 
--- PLAYER TRACKER POPUP & TOGGLE
+-- PLAYER TRACKER
 local TogFrame = C("Frame", {Size = UDim2.new(0.98, 0, 0, 35), BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, TogFrame)
 C("TextLabel", {Size = UDim2.new(0.6, 0, 1, 0), Position = UDim2.new(0.04, 0, 0, 0), Text = "Player Tracker", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 13, Font = Enum.Font.SourceSansBold, TextXAlignment = 0, BackgroundTransparency = 1}, TogFrame)
