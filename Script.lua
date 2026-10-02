@@ -240,7 +240,7 @@ InfJBtn.MouseButton1Click:Connect(function()
 	InfJBtn.TextColor3 = isInfJump and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
 end)
 
--- TÍNH NĂNG ZOOM OUT MỚI THÊM VÀO TAB MAIN
+-- TÍNH NĂNG ZOOM OUT MẠNH MẼ (ÉP MỞ KHÓA CAMERA CHO MỌI GAME)
 local ZoomBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Zoom Out (Phóng to màn hình): OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P1)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, ZoomBtn)
 local isZoomOut = false
@@ -252,8 +252,10 @@ ZoomBtn.MouseButton1Click:Connect(function()
 	
 	if isZoomOut then
 		LocalPlayer.CameraMaxZoomDistance = 999999
+		LocalPlayer.CameraMinZoomDistance = 0.5
+		LocalPlayer.CameraMode = Enum.CameraMode.Custom
 	else
-		LocalPlayer.CameraMaxZoomDistance = 400 -- Trả lại mặc định
+		LocalPlayer.CameraMaxZoomDistance = 400
 	end
 end)
 
@@ -332,7 +334,7 @@ LocalPlayer.CharacterAdded:Connect(function()
 	end
 end)
 
--- ==================== TAB 2 (FLY & TP & TOUCH FLING MỚI) ====================
+-- ==================== TAB 2 (FLY & TP & TOUCH FLING) ====================
 local FBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Fly: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, FBtn)
 
@@ -390,7 +392,7 @@ FBtn.MouseButton1Click:Connect(function()
 	end
 end)
 
--- TOUCH FLING (CHẠM LÀ BAY MỚI)
+-- TOUCH FLING
 local TouchFlingBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Touch Fling: TẮT", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(150, 50, 50)}, P2)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, TouchFlingBtn)
 
@@ -714,7 +716,7 @@ RejoinBtn.MouseButton1Click:Connect(function()
 	game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
 end)
 
-local HopBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Server Hop", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize, 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(0, 150, 200)}, P3)
+local HopBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Server Hop", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(0, 150, 200)}, P3)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, HopBtn)
 HopBtn.MouseButton1Click:Connect(function()
 	HopBtn.Text = "Finding Server..."
