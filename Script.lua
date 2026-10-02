@@ -240,22 +240,79 @@ InfJBtn.MouseButton1Click:Connect(function()
 	InfJBtn.TextColor3 = isInfJump and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
 end)
 
--- TÍNH NĂNG ZOOM OUT MẠNH MẼ (ÉP MỞ KHÓA CAMERA CHO MỌI GAME)
-local ZoomBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Zoom Out (Phóng to màn hình): OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P1)
+-- ==================== HỆ THỐNG ZOOM OUT VỚI NÚT + VÀ - ====================
+local ZoomBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Zoom Nút (+ / -): OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P1)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, ZoomBtn)
 local isZoomOut = false
 
+-- Tạo cụm nút + và - (mặc định ẩn, bật lên mới hiện và kéo đi được)
+local ZoomControlFrame = C("Frame", {
+	Size = UDim2.new(0, 110, 0, 50),
+	Position = UDim2.new(0.05, 0, 0.45, 0),
+	BackgroundTransparency = 1,
+	Visible = false,
+	Active = true
+}, SG)
+drag(ZoomControlFrame)
+
+-- Nút Dấu Trừ (-) : Thu nhỏ
+local ZoomInBtn = C("TextButton", {
+	Size = UDim2.new(0, 45, 0, 45),
+	Position = UDim2.new(0, 0, 0, 0),
+	Text = "-",
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+	TextSize = 24,
+	Font = Enum.Font.SourceSansBold,
+	BackgroundColor3 = Color3.fromRGB(40, 40, 50),
+	BackgroundTransparency = 0.3
+}, ZoomControlFrame)
+C("UICorner", {CornerRadius = UDim.new(1, 0)}, ZoomInBtn)
+C("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 2}, ZoomInBtn)
+
+-- Nút Dấu Cộng (+) : Phóng to xa
+local ZoomOutBtn = C("TextButton", {
+	Size = UDim2.new(0, 45, 0, 45),
+	Position = UDim2.new(0, 55, 0, 0),
+	Text = "+",
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+	TextSize = 24,
+	Font = Enum.Font.SourceSansBold,
+	BackgroundColor3 = Color3.fromRGB(40, 40, 50),
+	BackgroundTransparency = 0.3
+}, ZoomControlFrame)
+C("UICorner", {CornerRadius = UDim.new(1, 0)}, ZoomOutBtn)
+C("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 2}, ZoomOutBtn)
+
+-- Khoảng cách camera hiện tại (mặc định game khoảng 12.8, tăng dần lên khi bấm +)
+local currentZoomDist = 15
+
+ZoomOutBtn.MouseButton1Click:Connect(function()
+	if isZoomOut then
+		currentZoomDist = math.min(currentZoomDist + 15, 300) -- Bấm + để kéo xa ra (tối đa 300)
+	end
+end)
+
+ZoomInBtn.MouseButton1Click:Connect(function()
+	if isZoomOut then
+		currentZoomDist = math.max(currentZoomDist - 15, 5) -- Bấm - để kéo gần lại (tối thiểu 5)
+	end
+end)
+
 ZoomBtn.MouseButton1Click:Connect(function()
 	isZoomOut = not isZoomOut
-	ZoomBtn.Text = "Zoom Out (Phóng to màn hình): " .. (isZoomOut and "ON 🔍" or "OFF")
+	ZoomBtn.Text = "Zoom Nút (+ / -): " .. (isZoomOut and "ON 🔍" or "OFF")
 	ZoomBtn.TextColor3 = isZoomOut and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
-	
+	ZoomControlFrame.Visible = isZoomOut
+end)
+
+-- Ép cứng khoảng cách camera mỗi khung hình theo giá trị nút + -
+RS.RenderStepped:Connect(function()
 	if isZoomOut then
-		LocalPlayer.CameraMaxZoomDistance = 999999
-		LocalPlayer.CameraMinZoomDistance = 0.5
-		LocalPlayer.CameraMode = Enum.CameraMode.Custom
-	else
-		LocalPlayer.CameraMaxZoomDistance = 400
+		pcall(function()
+			LocalPlayer.CameraMaxZoomDistance = currentZoomDist
+			LocalPlayer.CameraMinZoomDistance = 0.5
+			LocalPlayer.CameraMode = Enum.CameraMode.Custom
+		end)
 	end
 end)
 
