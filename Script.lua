@@ -240,7 +240,7 @@ InfJBtn.MouseButton1Click:Connect(function()
 	InfJBtn.TextColor3 = isInfJump and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
 end)
 
--- ==================== HỆ THỐNG ZOOM OUT VỚI NÚT + VÀ - ====================
+-- ==================== HỆ THỐNG ZOOM OUT VỚI NÚT + VÀ - (FIX CHUẨN) ====================
 local ZoomBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Zoom Nút (+ / -): OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P1)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, ZoomBtn)
 local isZoomOut = false
@@ -283,18 +283,18 @@ local ZoomOutBtn = C("TextButton", {
 C("UICorner", {CornerRadius = UDim.new(1, 0)}, ZoomOutBtn)
 C("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 2}, ZoomOutBtn)
 
--- Khoảng cách camera hiện tại (mặc định game khoảng 12.8, tăng dần lên khi bấm +)
-local currentZoomDist = 15
+-- Biến lưu góc nhìn FOV hoặc khoảng cách camera mạnh mẽ
+local currentFOV = 70 -- Mặc định Roblox FOV là 70, tăng lên để giống zoom xa rộng
 
 ZoomOutBtn.MouseButton1Click:Connect(function()
 	if isZoomOut then
-		currentZoomDist = math.min(currentZoomDist + 15, 300) -- Bấm + để kéo xa ra (tối đa 300)
+		currentFOV = math.min(currentFOV + 15, 120) -- Bấm + để mở rộng góc nhìn ra xa (phóng to tầm nhìn)
 	end
 end)
 
 ZoomInBtn.MouseButton1Click:Connect(function()
 	if isZoomOut then
-		currentZoomDist = math.max(currentZoomDist - 15, 5) -- Bấm - để kéo gần lại (tối thiểu 5)
+		currentFOV = math.max(currentFOV - 15, 20) -- Bấm - để thu hẹp góc nhìn lại gần
 	end
 end)
 
@@ -303,15 +303,22 @@ ZoomBtn.MouseButton1Click:Connect(function()
 	ZoomBtn.Text = "Zoom Nút (+ / -): " .. (isZoomOut and "ON 🔍" or "OFF")
 	ZoomBtn.TextColor3 = isZoomOut and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
 	ZoomControlFrame.Visible = isZoomOut
+	if not isZoomOut then
+		local cam = workspace.CurrentCamera
+		if cam then cam.FieldOfView = 70 end
+	end
 end)
 
--- Ép cứng khoảng cách camera mỗi khung hình theo giá trị nút + -
+-- Ép cứng Max/Min Zoom distance kết hợp điều chỉnh FOV trực tiếp để không bị game ghi đè
 RS.RenderStepped:Connect(function()
 	if isZoomOut then
 		pcall(function()
-			LocalPlayer.CameraMaxZoomDistance = currentZoomDist
+			LocalPlayer.CameraMaxZoomDistance = 999999
 			LocalPlayer.CameraMinZoomDistance = 0.5
-			LocalPlayer.CameraMode = Enum.CameraMode.Custom
+			local cam = workspace.CurrentCamera
+			if cam then
+				cam.FieldOfView = currentFOV
+			end
 		end)
 	end
 end)
