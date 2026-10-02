@@ -240,7 +240,7 @@ InfJBtn.MouseButton1Click:Connect(function()
 	InfJBtn.TextColor3 = isInfJump and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
 end)
 
--- ==================== FIX ZOOM TOÀN CẢNH SIÊU MẠNH (ĐÃ TĂNG CỰC ĐẠI) ====================
+-- ==================== FIX ZOOM TOÀN CẢNH SIÊU MẠNH (ĐÃ NÂNG CỰC ĐẠI FOV 500) ====================
 local ZoomBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Zoom Toàn Cảnh (+ / -): OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P1)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, ZoomBtn)
 local isZoomOut = false
@@ -280,17 +280,17 @@ local ZoomOutBtn = C("TextButton", {
 C("UICorner", {CornerRadius = UDim.new(1, 0)}, ZoomOutBtn)
 C("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 2}, ZoomOutBtn)
 
-local customFOV = 120 -- Tăng mức khởi điểm rộng hơn
+local customFOV = 150 -- Tăng mức khởi điểm rộng hơn nữa
 
 ZoomOutBtn.MouseButton1Click:Connect(function()
 	if isZoomOut then
-		customFOV = math.min(customFOV + 25, 350) -- Bấm + để kéo FOV vươn tít ra xa hết cỡ (tối đa 350)
+		customFOV = math.min(customFOV + 35, 500) -- Bấm + để kéo FOV vươn tít ra xa tận trời (tối đa 500)
 	end
 end)
 
 ZoomInBtn.MouseButton1Click:Connect(function()
 	if isZoomOut then
-		customFOV = math.max(customFOV - 25, 10) -- Bấm - để thu nhỏ lại
+		customFOV = math.max(customFOV - 35, 10) -- Bấm - để thu nhỏ lại
 	end
 end)
 
@@ -307,7 +307,7 @@ end)
 RS.RenderStepped:Connect(function()
 	if isZoomOut then
 		pcall(function()
-			LocalPlayer.CameraMaxZoomDistance = 99999999
+			LocalPlayer.CameraMaxZoomDistance = 9999999999
 			LocalPlayer.CameraMinZoomDistance = 0.1
 			local cam = workspace.CurrentCamera
 			if cam then
