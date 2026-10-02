@@ -240,12 +240,11 @@ InfJBtn.MouseButton1Click:Connect(function()
 	InfJBtn.TextColor3 = isInfJump and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
 end)
 
--- ==================== HỆ THỐNG ZOOM OUT VỚI NÚT + VÀ - (FIX CHUẨN) ====================
-local ZoomBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Zoom Nút (+ / -): OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P1)
+-- ==================== FIX ZOOM TOÀN CẢNH SIÊU MẠNH (ĐÃ TĂNG CỰC ĐẠI) ====================
+local ZoomBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Zoom Toàn Cảnh (+ / -): OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P1)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, ZoomBtn)
 local isZoomOut = false
 
--- Tạo cụm nút + và - (mặc định ẩn, bật lên mới hiện và kéo đi được)
 local ZoomControlFrame = C("Frame", {
 	Size = UDim2.new(0, 110, 0, 50),
 	Position = UDim2.new(0.05, 0, 0.45, 0),
@@ -255,7 +254,6 @@ local ZoomControlFrame = C("Frame", {
 }, SG)
 drag(ZoomControlFrame)
 
--- Nút Dấu Trừ (-) : Thu nhỏ
 local ZoomInBtn = C("TextButton", {
 	Size = UDim2.new(0, 45, 0, 45),
 	Position = UDim2.new(0, 0, 0, 0),
@@ -269,7 +267,6 @@ local ZoomInBtn = C("TextButton", {
 C("UICorner", {CornerRadius = UDim.new(1, 0)}, ZoomInBtn)
 C("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 2}, ZoomInBtn)
 
--- Nút Dấu Cộng (+) : Phóng to xa
 local ZoomOutBtn = C("TextButton", {
 	Size = UDim2.new(0, 45, 0, 45),
 	Position = UDim2.new(0, 55, 0, 0),
@@ -283,41 +280,38 @@ local ZoomOutBtn = C("TextButton", {
 C("UICorner", {CornerRadius = UDim.new(1, 0)}, ZoomOutBtn)
 C("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 2}, ZoomOutBtn)
 
--- Biến lưu góc nhìn FOV hoặc khoảng cách camera mạnh mẽ
-local currentFOV = 70 -- Mặc định Roblox FOV là 70, tăng lên để giống zoom xa rộng
+local customFOV = 120 -- Tăng mức khởi điểm rộng hơn
 
 ZoomOutBtn.MouseButton1Click:Connect(function()
 	if isZoomOut then
-		currentFOV = math.min(currentFOV + 15, 120) -- Bấm + để mở rộng góc nhìn ra xa (phóng to tầm nhìn)
+		customFOV = math.min(customFOV + 25, 350) -- Bấm + để kéo FOV vươn tít ra xa hết cỡ (tối đa 350)
 	end
 end)
 
 ZoomInBtn.MouseButton1Click:Connect(function()
 	if isZoomOut then
-		currentFOV = math.max(currentFOV - 15, 20) -- Bấm - để thu hẹp góc nhìn lại gần
+		customFOV = math.max(customFOV - 25, 10) -- Bấm - để thu nhỏ lại
 	end
 end)
 
 ZoomBtn.MouseButton1Click:Connect(function()
 	isZoomOut = not isZoomOut
-	ZoomBtn.Text = "Zoom Nút (+ / -): " .. (isZoomOut and "ON 🔍" or "OFF")
+	ZoomBtn.Text = "Zoom Toàn Cảnh (+ / -): " .. (isZoomOut and "ON 🔍" or "OFF")
 	ZoomBtn.TextColor3 = isZoomOut and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
 	ZoomControlFrame.Visible = isZoomOut
 	if not isZoomOut then
-		local cam = workspace.CurrentCamera
-		if cam then cam.FieldOfView = 70 end
+		workspace.CurrentCamera.FieldOfView = 70
 	end
 end)
 
--- Ép cứng Max/Min Zoom distance kết hợp điều chỉnh FOV trực tiếp để không bị game ghi đè
 RS.RenderStepped:Connect(function()
 	if isZoomOut then
 		pcall(function()
-			LocalPlayer.CameraMaxZoomDistance = 999999
-			LocalPlayer.CameraMinZoomDistance = 0.5
+			LocalPlayer.CameraMaxZoomDistance = 99999999
+			LocalPlayer.CameraMinZoomDistance = 0.1
 			local cam = workspace.CurrentCamera
 			if cam then
-				cam.FieldOfView = currentFOV
+				cam.FieldOfView = customFOV
 			end
 		end)
 	end
