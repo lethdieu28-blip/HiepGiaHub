@@ -240,6 +240,23 @@ InfJBtn.MouseButton1Click:Connect(function()
 	InfJBtn.TextColor3 = isInfJump and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
 end)
 
+-- TÍNH NĂNG ZOOM OUT MỚI THÊM VÀO TAB MAIN
+local ZoomBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Zoom Out (Phóng to màn hình): OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P1)
+C("UICorner", {CornerRadius = UDim.new(0, 8)}, ZoomBtn)
+local isZoomOut = false
+
+ZoomBtn.MouseButton1Click:Connect(function()
+	isZoomOut = not isZoomOut
+	ZoomBtn.Text = "Zoom Out (Phóng to màn hình): " .. (isZoomOut and "ON 🔍" or "OFF")
+	ZoomBtn.TextColor3 = isZoomOut and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
+	
+	if isZoomOut then
+		LocalPlayer.CameraMaxZoomDistance = 999999
+	else
+		LocalPlayer.CameraMaxZoomDistance = 400 -- Trả lại mặc định
+	end
+end)
+
 -- SPINBOT
 local SpinBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "SPINBOT: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P1)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, SpinBtn)
@@ -697,7 +714,7 @@ RejoinBtn.MouseButton1Click:Connect(function()
 	game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
 end)
 
-local HopBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Server Hop", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(0, 150, 200)}, P3)
+local HopBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Server Hop", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize, 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(0, 150, 200)}, P3)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, HopBtn)
 HopBtn.MouseButton1Click:Connect(function()
 	HopBtn.Text = "Finding Server..."
