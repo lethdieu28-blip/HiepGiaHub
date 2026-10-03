@@ -81,7 +81,7 @@ end)
 
 drag(TBtn)
 
--- MAIN FRAME (KÍCH THƯỚC LỚN 0.92 x 0.88)
+-- MAIN FRAME (ĐÃ SỬA BO TRÒN CẢ 4 GÓC ĐỂ KHỚP VIỀN TRÊN DƯỚI)
 local Main = C("Frame", {
 	AnchorPoint = Vector2.new(0.5, 0.5), 
 	Position = UDim2.new(0.5, 0, 0.5, 0), 
@@ -714,61 +714,97 @@ DestroyBtn.MouseButton1Click:Connect(function()
 	SG:Destroy()
 end)
 
--- ==================== HIỆU ỨNG GIỌT NƯỚC BỐC HƠI (WATER DROP & VAPOR) ====================
+-- ==================== HIỆU ỨNG TÁCH NHIỀU GIỌT NƯỚC & BỐC HƠI ====================
 local isOpen = true
 local isAnimating = false
+
+-- Tạo container chứa các giọt nước hiệu ứng
+local VaporContainer = C("Frame", {
+	Size = UDim2.new(1, 0, 1, 0),
+	BackgroundTransparency = 1,
+	Visible = false,
+	ZIndex = 10
+}, SG)
+
+-- Tạo sẵn 4 giọt nước với kích thước và độ nhọn khác nhau (dùng UICorner để tạo hình giọt nước/elip)
+local dropData = {
+	{Size = UDim2.new(0, 24, 0, 36), Offset = UDim2.new(0, -40, 0, -20), Corner = UDim.new(0.8, 0)}, -- Giọt to, nhọn đầu
+	{Size = UDim2.new(0, 16, 0, 26), Offset = UDim2.new(0, 30, 0, -50), Corner = UDim.new(1, 0)},   -- Giọt trung bình
+	{Size = UDim2.new(0, 10, 0, 18), Offset = UDim2.new(0, -15, 0, 40), Corner = UDim.new(0.7, 0)},  -- Giọt nhỏ lệch trái
+	{Size = UDim2.new(0, 14, 0, 22), Offset = UDim2.new(0, 45, 0, 30), Corner = UDim.new(0.9, 0)}   -- Giọt lệch phải
+}
+
+local drops = {}
+for _, data in ipairs(dropData) do
+	local d = C("Frame", {
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Size = data.Size,
+		Position = UDim2.new(0.5, data.Offset.X.Offset, 0.5, data.Offset.Y.Offset),
+		BackgroundColor3 = Color3.fromRGB(0, 170, 255),
+		BackgroundTransparency = 1
+	}, VaporContainer)
+	C("UICorner", {CornerRadius = data.Corner}, d)
+	table.insert(drops, {Frame = d, Offset = data.Offset})
+end
 
 local function tog()
 	if isAnimating then return end
 	isAnimating = true
 	
 	if isOpen then
-		-- Giai đoạn 1: Thu nhỏ lại thành một giọt nước tròn nhỏ xíu ở giữa
-		local tw1 = TS:Create(Main, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-			Size = UDim2.new(0, 20, 0, 20),
-			BackgroundTransparency = 0.5
-		})
-		tw1:Play()
-		TS:Create(MainCorner, TweenInfo.new(0.25), {CornerRadius = UDim.new(1, 0)}):Play()
-		
-		tw1.Completed:Wait()
-		
-		-- Giai đoạn 2: Bốc hơi lên cao (Bay lên phía trên và mờ dần biến mất)
-		local tw2 = TS:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
-			Position = Main.Position - UDim2.new(0, 0, 0, 100),
-			BackgroundTransparency = 1
-		})
-		tw2:Play()
-		
-		tw2.Completed:Wait()
+		-- Bước 1: Ẩn menu chính và bật container hiệu ứng giọt nước
 		Main.Visible = false
+		VaporContainer.Visible = true
+		
+		-- Cho các giọt nước xuất hiện tại vị trí menu đang đóng lại
+		for _, dropObj in ipairs(drops) do
+			dropObj.Frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+			dropObj.Frame.Size = UDim2.new(0, 4, 0, 4)
+			dropObj.Frame.BackgroundTransparency = 0.3
+			
+			-- Hiệu ứng bung các giọt ra 3-4 hướng đồng thời bốc hơi bay lên trên
+			TS:Create(dropObj.Frame, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				Position = UDim2.new(0.5, dropObj.Offset.X.Offset, 0.5, dropObj.Offset.Y.Offset - 90),
+				Size = dropObj.Frame.Size * 1.5,
+				BackgroundTransparency = 1
+			}):Play()
+		end
+		
+		task.wait(0.4)
+		VaporContainer.Visible = false
 		isOpen = false
 		isAnimating = false
 	else
-		-- Reset lại trạng thái chuẩn bị bốc hơi ngược xuống để mở
-		Main.Position = UDim2.new(0.5, 0, 0.5, -50)
+		-- Bước 2: Mở menu từ trạng thái giọt nước tụ lại rồi bung nở
+		VaporContainer.Visible = true
+		Main.Visible = false
+		
+		for _, dropObj in ipairs(drops) do
+			dropObj.Frame.Position = UDim2.new(0.5, dropObj.Offset.X.Offset, 0.5, dropObj.Offset.Y.Offset - 90)
+			dropObj.Frame.BackgroundTransparency = 1
+			
+			-- Các giọt nước rơi tụ về tâm giữa màn hình
+			TS:Create(dropObj.Frame, TweenInfo.new(0.35, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
+				Position = UDim2.new(0.5, 0, 0.5, 0),
+				BackgroundTransparency = 0.4
+			}):Play()
+		end
+		
+		task.wait(0.35)
+		VaporContainer.Visible = false
+		
+		-- Hiển thị menu và bung nở to ra
 		Main.Size = UDim2.new(0, 20, 0, 20)
-		Main.BackgroundTransparency = 0.5
-		MainCorner.CornerRadius = UDim.new(1, 0)
+		Main.BackgroundTransparency = 0.3
 		Main.Visible = true
 		
-    -- Rơi giọt nước xuống vị trí giữa màn hình
-		local tw1 = TS:Create(Main, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Position = UDim2.new(0.5, 0, 0.5, 0),
+		local tw = TS:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0.92, 0, 0.88, 0),
 			BackgroundTransparency = 0
 		})
-		tw1:Play()
+		tw:Play()
+		tw.Completed:Wait()
 		
-		tw1.Completed:Wait()
-		
-		-- Bung nở to ra thành Menu hoàn chỉnh
-		local tw2 = TS:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-			Size = UDim2.new(0.92, 0, 0.88, 0)
-		})
-		tw2:Play()
-		TS:Create(MainCorner, TweenInfo.new(0.3), {CornerRadius = UDim.new(0, 12)}):Play()
-		
-		tw2.Completed:Wait()
 		isOpen = true
 		isAnimating = false
 	end
