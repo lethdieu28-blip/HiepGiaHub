@@ -81,7 +81,7 @@ end)
 
 drag(TBtn)
 
--- MAIN FRAME (ĐÃ ĐƯỢC THU PHÓNG TO HƠN)
+-- MAIN FRAME (KÍCH THƯỚC LỚN 0.92 x 0.88)
 local Main = C("Frame", {
 	AnchorPoint = Vector2.new(0.5, 0.5), 
 	Position = UDim2.new(0.5, 0, 0.5, 0), 
@@ -90,7 +90,7 @@ local Main = C("Frame", {
 	Visible = true,
 	ClipsDescendants = true
 }, SG)
-C("UICorner", {CornerRadius = UDim.new(0, 12)}, Main)
+local MainCorner = C("UICorner", {CornerRadius = UDim.new(0, 12)}, Main)
 C("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 2}, Main)
 drag(Main)
 
@@ -315,7 +315,7 @@ LocalPlayer.CharacterAdded:Connect(function()
 	end
 end)
 
--- ==================== TAB 2 (FLY & TP & TOUCH FLING MỚI) ====================
+-- ==================== TAB 2 (FLY & TP & TOUCH FLING) ====================
 local FBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Fly: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, FBtn)
 
@@ -714,11 +714,65 @@ DestroyBtn.MouseButton1Click:Connect(function()
 	SG:Destroy()
 end)
 
--- BẬT / TẮT MAIN MENU VIA LOGO BUTTON
+-- ==================== HIỆU ỨNG GIỌT NƯỚC BỐC HƠI (WATER DROP & VAPOR) ====================
 local isOpen = true
+local isAnimating = false
+
 local function tog()
-	isOpen = not isOpen
-	Main.Visible = isOpen
+	if isAnimating then return end
+	isAnimating = true
+	
+	if isOpen then
+		-- Giai đoạn 1: Thu nhỏ lại thành một giọt nước tròn nhỏ xíu ở giữa
+		local tw1 = TS:Create(Main, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+			Size = UDim2.new(0, 20, 0, 20),
+			BackgroundTransparency = 0.5
+		})
+		tw1:Play()
+		TS:Create(MainCorner, TweenInfo.new(0.25), {CornerRadius = UDim.new(1, 0)}):Play()
+		
+		tw1.Completed:Wait()
+		
+		-- Giai đoạn 2: Bốc hơi lên cao (Bay lên phía trên và mờ dần biến mất)
+		local tw2 = TS:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+			Position = Main.Position - UDim2.new(0, 0, 0, 100),
+			BackgroundTransparency = 1
+		})
+		tw2:Play()
+		
+		tw2.Completed:Wait()
+		Main.Visible = false
+		isOpen = false
+		isAnimating = false
+	else
+		-- Reset lại trạng thái chuẩn bị bốc hơi ngược xuống để mở
+		Main.Position = UDim2.new(0.5, 0, 0.5, -50)
+		Main.Size = UDim2.new(0, 20, 0, 20)
+		Main.BackgroundTransparency = 0.5
+		MainCorner.CornerRadius = UDim.new(1, 0)
+		Main.Visible = true
+		
+    -- Rơi giọt nước xuống vị trí giữa màn hình
+		local tw1 = TS:Create(Main, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			Position = UDim2.new(0.5, 0, 0.5, 0),
+			BackgroundTransparency = 0
+		})
+		tw1:Play()
+		
+		tw1.Completed:Wait()
+		
+		-- Bung nở to ra thành Menu hoàn chỉnh
+		local tw2 = TS:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0.92, 0, 0.88, 0)
+		})
+		tw2:Play()
+		TS:Create(MainCorner, TweenInfo.new(0.3), {CornerRadius = UDim.new(0, 12)}):Play()
+		
+		tw2.Completed:Wait()
+		isOpen = true
+		isAnimating = false
+	end
 end
+
 TBtn.MouseButton1Click:Connect(tog)
 CBtn.MouseButton1Click:Connect(tog)
