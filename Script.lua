@@ -10,7 +10,7 @@ if not TargetParent then
 	TargetParent = LocalPlayer:FindFirstChild("CoreGui") or game:GetService("CoreGui")
 end
 
--- DỌN DEEP GUI CŨ
+-- DỌN GUI CŨ
 if TargetParent:FindFirstChild("HiepGiaHubFull") then
 	TargetParent.HiepGiaHubFull:Destroy()
 end
@@ -81,39 +81,44 @@ end)
 
 drag(TBtn)
 
--- MAIN FRAME (ĐÃ SỬA BO TRÒN CẢ 4 GÓC ĐỂ KHỚP VIỀN TRÊN DƯỚI)
+-- MAIN FRAME
 local Main = C("Frame", {
 	AnchorPoint = Vector2.new(0.5, 0.5), 
 	Position = UDim2.new(0.5, 0, 0.5, 0), 
 	Size = UDim2.new(0.92, 0, 0.88, 0), 
 	BackgroundColor3 = Color3.fromRGB(25, 25, 30), 
+	BackgroundTransparency = 0,
 	Visible = true,
 	ClipsDescendants = true
 }, SG)
-local MainCorner = C("UICorner", {CornerRadius = UDim.new(0, 12)}, Main)
-C("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 2}, Main)
+C("UICorner", {CornerRadius = UDim.new(0, 12)}, Main)
+local MainStroke = C("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 2, Transparency = 0}, Main)
 drag(Main)
 
+-- THANH TIÊU ĐỀ
 local Hd = C("Frame", {Size = UDim2.new(1, 0, 0, 40), BackgroundColor3 = Color3.fromRGB(15, 15, 20)}, Main)
-C("TextLabel", {Size = UDim2.new(0.7, 0, 1, 0), Position = UDim2.new(0.03, 0, 0, 0), Text = "HiepGia—Hub Full", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 18, Font = Enum.Font.SourceSansBold, TextXAlignment = 0, BackgroundTransparency = 1}, Hd)
-local CBtn = C("TextButton", {Size = UDim2.new(0, 30, 0, 30), Position = UDim2.new(1, -35, 0.5, -15), Text = "✕", TextColor3 = Color3.fromRGB(255, 80, 80), TextSize = 16, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 40)}, Hd)
+C("UICorner", {CornerRadius = UDim.new(0, 12)}, Hd)
+local HdCover = C("Frame", {Size = UDim2.new(1, 0, 0, 10), Position = UDim2.new(0, 0, 1, -10), BackgroundColor3 = Color3.fromRGB(15, 15, 20), BorderSizePixel = 0}, Hd)
+
+local TitleLbl = C("TextLabel", {Size = UDim2.new(0.7, 0, 1, 0), Position = UDim2.new(0.03, 0, 0, 0), Text = "HiepGia—Hub Full", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 18, Font = Enum.Font.SourceSansBold, TextXAlignment = 0, BackgroundTransparency = 1, TextTransparency = 0}, Hd)
+local CBtn = C("TextButton", {Size = UDim2.new(0, 30, 0, 30), Position = UDim2.new(1, -35, 0.5, -15), Text = "✕", TextColor3 = Color3.fromRGB(255, 80, 80), TextSize = 16, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 40), TextTransparency = 0, BackgroundTransparency = 0}, Hd)
 C("UICorner", {CornerRadius = UDim.new(0, 6)}, CBtn)
 
-local Sb = C("Frame", {Size = UDim2.new(0.25, 0, 1, -45), Position = UDim2.new(0, 5, 0, 45), BackgroundColor3 = Color3.fromRGB(18, 18, 22)}, Main)
+local Sb = C("Frame", {Size = UDim2.new(0.25, 0, 1, -45), Position = UDim2.new(0, 5, 0, 45), BackgroundColor3 = Color3.fromRGB(18, 18, 22), BackgroundTransparency = 0}, Main)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, Sb)
 local Pc = C("Frame", {Size = UDim2.new(0.73, 0, 1, -45), Position = UDim2.new(0.26, 0, 0, 45), BackgroundTransparency = 1, ClipsDescendants = true}, Main)
 
 -- TAB BUTTONS
-local Tb1 = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 32), Position = UDim2.new(0.05, 0, 0, 10), Text = "Main", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(0, 170, 255)}, Sb)
+local Tb1 = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 32), Position = UDim2.new(0.05, 0, 0, 10), Text = "Main", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(0, 170, 255), BackgroundTransparency = 0}, Sb)
 C("UICorner", {CornerRadius = UDim.new(0, 6)}, Tb1)
 
-local Tb2 = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 32), Position = UDim2.new(0.05, 0, 0, 48), Text = "Fly & TP", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(30, 30, 35)}, Sb)
+local Tb2 = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 32), Position = UDim2.new(0.05, 0, 0, 48), Text = "Fly & TP", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(30, 30, 35), BackgroundTransparency = 0}, Sb)
 C("UICorner", {CornerRadius = UDim.new(0, 6)}, Tb2)
 
-local Tb4 = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 32), Position = UDim2.new(0.05, 0, 0, 86), Text = "Catching Up", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(30, 30, 35)}, Sb)
+local Tb4 = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 32), Position = UDim2.new(0.05, 0, 0, 86), Text = "Catching Up", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(30, 30, 35), BackgroundTransparency = 0}, Sb)
 C("UICorner", {CornerRadius = UDim.new(0, 6)}, Tb4)
 
-local Tb3 = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 32), Position = UDim2.new(0.05, 0, 0, 124), Text = "Setting", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(30, 30, 35)}, Sb)
+local Tb3 = C("TextButton", {Size = UDim2.new(0.9, 0, 0, 32), Position = UDim2.new(0.05, 0, 0, 124), Text = "Setting", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(30, 30, 35), BackgroundTransparency = 0}, Sb)
 C("UICorner", {CornerRadius = UDim.new(0, 6)}, Tb3)
 
 -- TAB PAGES
@@ -247,17 +252,14 @@ local SpeedInput = C("TextBox", {Size = UDim2.new(0.98, 0, 0, 32), Text = "100",
 C("UICorner", {CornerRadius = UDim.new(0, 6)}, SpeedInput)
 
 local spinning, spinVelocity = false, nil
-
 local function stopSpin()
 	spinning = false
 	SpinBtn.Text = "SPINBOT: OFF"
 	SpinBtn.TextColor3 = Color3.fromRGB(255, 70, 70)
-	
 	if spinVelocity then
 		spinVelocity:Destroy()
 		spinVelocity = nil
 	end
-	
 	local char = LocalPlayer.Character
 	if char and char:FindFirstChildOfClass("Humanoid") then
 		local hum = char:FindFirstChildOfClass("Humanoid")
@@ -273,23 +275,18 @@ SpinBtn.MouseButton1Click:Connect(function()
 		local char = LocalPlayer.Character
 		if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChildOfClass("Humanoid") then
 			if spinVelocity then spinVelocity:Destroy() end
-			
 			local hum = char:FindFirstChildOfClass("Humanoid")
 			hum.AutoRotate = false
 			hum:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
 			hum:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
-			
 			spinVelocity = Instance.new("BodyAngularVelocity")
 			spinVelocity.Name = "SpinBotVelocity"
 			spinVelocity.MaxTorque = Vector3.new(0, math.huge, 0)
-			
 			local rawSpeed = tonumber(SpeedInput.Text) or 100
 			local speed = math.clamp(rawSpeed, 1, 10000)
 			SpeedInput.Text = tostring(speed)
-			
 			spinVelocity.AngularVelocity = Vector3.new(0, speed, 0)
 			spinVelocity.Parent = char.HumanoidRootPart
-			
 			SpinBtn.Text = "SPINBOT: ON 🌀"
 			SpinBtn.TextColor3 = Color3.fromRGB(80, 255, 80)
 		else
@@ -310,9 +307,7 @@ SpeedInput.FocusLost:Connect(function()
 end)
 
 LocalPlayer.CharacterAdded:Connect(function()
-	if spinning then
-		stopSpin()
-	end
+	if spinning then stopSpin() end
 end)
 
 -- ==================== TAB 2 (FLY & TP & TOUCH FLING) ====================
@@ -563,15 +558,11 @@ local function updatePlayerList()
 end
 
 ToggleTrollBtn.MouseButton1Click:Connect(stopTroll)
-
 LP.PlayerAdded:Connect(updatePlayerList)
 LP.PlayerRemoving:Connect(function(plr)
-	if targetPlayer == plr then
-		stopTroll()
-	end
+	if targetPlayer == plr then stopTroll() end
 	updatePlayerList()
 end)
-
 updatePlayerList()
 
 -- ==================== TAB CATCHING UP ====================
@@ -608,11 +599,9 @@ CatchBtn.MouseButton1Click:Connect(function()
 		CatchSlowBtn.Text = "Catching Up (Chờ lâu): OFF"
 		CatchSlowBtn.TextColor3 = Color3.fromRGB(255, 70, 70)
 	end
-	
 	isCatchingUp = not isCatchingUp
 	CatchBtn.Text = "Catching Up (Nhanh): " .. (isCatchingUp and "ON ⚡" or "OFF")
 	CatchBtn.TextColor3 = isCatchingUp and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
-	
 	if isCatchingUp then
 		task.spawn(function()
 			while isCatchingUp do
@@ -626,7 +615,6 @@ CatchBtn.MouseButton1Click:Connect(function()
 							local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
 							local myChar = LocalPlayer.Character
 							local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
-							
 							if myHrp and targetHrp and targetHum and targetHum.Health > 0 then
 								myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 0.5)
 							else
@@ -648,11 +636,9 @@ CatchSlowBtn.MouseButton1Click:Connect(function()
 		CatchBtn.Text = "Catching Up (Nhanh): OFF"
 		CatchBtn.TextColor3 = Color3.fromRGB(255, 70, 70)
 	end
-	
 	isCatchingUpSlow = not isCatchingUpSlow
 	CatchSlowBtn.Text = "Catching Up (Chờ lâu): " .. (isCatchingUpSlow and "ON ⏳" or "OFF")
 	CatchSlowBtn.TextColor3 = isCatchingUpSlow and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
-	
 	if isCatchingUpSlow then
 		task.spawn(function()
 			while isCatchingUpSlow do
@@ -666,7 +652,6 @@ CatchSlowBtn.MouseButton1Click:Connect(function()
 							local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
 							local myChar = LocalPlayer.Character
 							local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
-							
 							if myHrp and targetHrp and targetHum and targetHum.Health > 0 then
 								myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 0.5)
 							else
@@ -701,8 +686,7 @@ local HopBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Server
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, HopBtn)
 HopBtn.MouseButton1Click:Connect(function()
 	HopBtn.Text = "Finding Server..."
-	local TS = game:GetService("TeleportService")
-	TS:Teleport(game.PlaceId, LocalPlayer)
+	game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
 end)
 
 local DestroyBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Xóa GUI (Unload Script)", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(120, 40, 40)}, P3)
@@ -714,99 +698,88 @@ DestroyBtn.MouseButton1Click:Connect(function()
 	SG:Destroy()
 end)
 
--- ==================== HIỆU ỨNG TÁCH NHIỀU GIỌT NƯỚC & BỐC HƠI ====================
+-- ==================== HIỆU ỨNG HÌNH TRÒN (ĐÃ ĐỔI TỪ GIỌT NƯỚC SANG TRÒN) ====================
 local isOpen = true
-local isAnimating = false
 
--- Tạo container chứa các giọt nước hiệu ứng
-local VaporContainer = C("Frame", {
-	Size = UDim2.new(1, 0, 1, 0),
-	BackgroundTransparency = 1,
-	Visible = false,
-	ZIndex = 10
-}, SG)
-
--- Tạo sẵn 4 giọt nước với kích thước và độ nhọn khác nhau (dùng UICorner để tạo hình giọt nước/elip)
-local dropData = {
-	{Size = UDim2.new(0, 24, 0, 36), Offset = UDim2.new(0, -40, 0, -20), Corner = UDim.new(0.8, 0)}, -- Giọt to, nhọn đầu
-	{Size = UDim2.new(0, 16, 0, 26), Offset = UDim2.new(0, 30, 0, -50), Corner = UDim.new(1, 0)},   -- Giọt trung bình
-	{Size = UDim2.new(0, 10, 0, 18), Offset = UDim2.new(0, -15, 0, 40), Corner = UDim.new(0.7, 0)},  -- Giọt nhỏ lệch trái
-	{Size = UDim2.new(0, 14, 0, 22), Offset = UDim2.new(0, 45, 0, 30), Corner = UDim.new(0.9, 0)}   -- Giọt lệch phải
-}
-
-local drops = {}
-for _, data in ipairs(dropData) do
-	local d = C("Frame", {
+local function createCircleEffect(startPos, endPos, size, isDropping)
+	local dropContainer = C("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		Size = data.Size,
-		Position = UDim2.new(0.5, data.Offset.X.Offset, 0.5, data.Offset.Y.Offset),
-		BackgroundColor3 = Color3.fromRGB(0, 170, 255),
-		BackgroundTransparency = 1
-	}, VaporContainer)
-	C("UICorner", {CornerRadius = data.Corner}, d)
-	table.insert(drops, {Frame = d, Offset = data.Offset})
+		Position = startPos,
+		Size = size,
+		BackgroundTransparency = 1,
+		ClipsDescendants = false,
+		ZIndex = 999
+	}, SG)
+	
+	-- Phần thân hình tròn
+	local circleBody = C("Frame", {
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(0.5, 0, 0.5, 0),
+		Size = UDim2.new(1, 0, 1, 0),
+		BackgroundColor3 = Color3.fromRGB(0, 150, 255),
+		BackgroundTransparency = 0
+	}, dropContainer)
+	C("UICorner", {CornerRadius = UDim.new(1, 0)}, circleBody)
+
+	C("UIStroke", {
+		Color = Color3.fromRGB(255, 255, 255),
+		Thickness = 1.2,
+		Transparency = 0.3
+	}, circleBody)
+	
+	TS:Create(dropContainer, TweenInfo.new(0.4, Enum.EasingStyle.Sine, isDropping and Enum.EasingDirection.In or Enum.EasingDirection.Out), {
+		Position = endPos,
+		Size = size + UDim2.new(0, isDropping and 6 or -12, 0, isDropping and 6 or -12)
+	}):Play()
+	
+	task.delay(0.4, function()
+		if dropContainer then dropContainer:Destroy() end
+	end)
 end
 
 local function tog()
-	if isAnimating then return end
-	isAnimating = true
-	
+	isOpen = not isOpen
 	if isOpen then
-		-- Bước 1: Ẩn menu chính và bật container hiệu ứng giọt nước
 		Main.Visible = false
-		VaporContainer.Visible = true
+		local centerPos = Main.Position
+		createCircleEffect(centerPos + UDim2.new(0, 0, -0.65, 0), centerPos, UDim2.new(0, 42, 0, 42), true)
+		createCircleEffect(centerPos + UDim2.new(0, -60, -0.45, 0), centerPos + UDim2.new(0, -30, 0, 0), UDim2.new(0, 22, 0, 22), true)
+		createCircleEffect(centerPos + UDim2.new(0, 60, -0.45, 0), centerPos + UDim2.new(0, 30, 0, 0), UDim2.new(0, 22, 0, 22), true)
 		
-		-- Cho các giọt nước xuất hiện tại vị trí menu đang đóng lại
-		for _, dropObj in ipairs(drops) do
-			dropObj.Frame.Position = UDim2.new(0.5, 0, 0.5, 0)
-			dropObj.Frame.Size = UDim2.new(0, 4, 0, 4)
-			dropObj.Frame.BackgroundTransparency = 0.3
-			
-			-- Hiệu ứng bung các giọt ra 3-4 hướng đồng thời bốc hơi bay lên trên
-			TS:Create(dropObj.Frame, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-				Position = UDim2.new(0.5, dropObj.Offset.X.Offset, 0.5, dropObj.Offset.Y.Offset - 90),
-				Size = dropObj.Frame.Size * 1.5,
-				BackgroundTransparency = 1
-			}):Play()
-		end
-		
-		task.wait(0.4)
-		VaporContainer.Visible = false
-		isOpen = false
-		isAnimating = false
-	else
-		-- Bước 2: Mở menu từ trạng thái giọt nước tụ lại rồi bung nở
-		VaporContainer.Visible = true
-		Main.Visible = false
-		
-		for _, dropObj in ipairs(drops) do
-			dropObj.Frame.Position = UDim2.new(0.5, dropObj.Offset.X.Offset, 0.5, dropObj.Offset.Y.Offset - 90)
-			dropObj.Frame.BackgroundTransparency = 1
-			
-			-- Các giọt nước rơi tụ về tâm giữa màn hình
-			TS:Create(dropObj.Frame, TweenInfo.new(0.35, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
-				Position = UDim2.new(0.5, 0, 0.5, 0),
-				BackgroundTransparency = 0.4
-			}):Play()
-		end
-		
-		task.wait(0.35)
-		VaporContainer.Visible = false
-		
-		-- Hiển thị menu và bung nở to ra
-		Main.Size = UDim2.new(0, 20, 0, 20)
-		Main.BackgroundTransparency = 0.3
+		task.wait(0.3)
 		Main.Visible = true
+		Main.Active = true
+		Main.Size = UDim2.new(0, 0, 0, 0)
+		Main.BackgroundTransparency = 1
+		MainStroke.Transparency = 1
+		Hd.BackgroundTransparency = 1
+		HdCover.BackgroundTransparency = 1
+		TitleLbl.TextTransparency = 1
+		CBtn.BackgroundTransparency = 1
+		CBtn.TextTransparency = 1
+		Sb.BackgroundTransparency = 1
+
+		TS:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0.92, 0, 0.88, 0), BackgroundTransparency = 0}):Play()
+		TS:Create(MainStroke, TweenInfo.new(0.3), {Transparency = 0}):Play()
+		TS:Create(Hd, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
+		TS:Create(HdCover, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
+		TS:Create(TitleLbl, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+		TS:Create(CBtn, TweenInfo.new(0.3), {BackgroundTransparency = 0, TextTransparency = 0}):Play()
+		TS:Create(Sb, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
+	else
+		Main.Active = false
+		local curPos = Main.Position
 		
-		local tw = TS:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-			Size = UDim2.new(0.92, 0, 0.88, 0),
-			BackgroundTransparency = 0
-		})
-		tw:Play()
-		tw.Completed:Wait()
+		TS:Create(Main, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = UDim2.new(0, 20, 0, 30), BackgroundTransparency = 0.5}):Play()
 		
-		isOpen = true
-		isAnimating = false
+		task.delay(0.2, function()
+			Main.Visible = false
+			createCircleEffect(curPos, curPos + UDim2.new(0, 0, -0.7, 0), UDim2.new(0, 40, 0, 40), false)
+			createCircleEffect(curPos, curPos + UDim2.new(0, -80, -0.4, 0), UDim2.new(0, 24, 0, 24), false)
+			createCircleEffect(curPos, curPos + UDim2.new(0, 80, -0.4, 0), UDim2.new(0, 24, 0, 24), false)
+			createCircleEffect(curPos, curPos + UDim2.new(0, -40, -0.5, 0), UDim2.new(0, 18, 0, 18), false)
+			createCircleEffect(curPos, curPos + UDim2.new(0, 40, -0.5, 0), UDim2.new(0, 18, 0, 18), false)
+		end)
 	end
 end
 
