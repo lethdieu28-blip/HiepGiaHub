@@ -1,18 +1,16 @@
 -- ========================================================
--- HIEP GIA HUB FULL - OPTIMIZED & RESTORED TROLL PLAYER
+-- HIEP GIA HUB FULL - FIX DELTA COREGUI & FULL FEATURES
 -- ========================================================
 local TS = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
 local RS = game:GetService("RunService")
 local LP = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
 local LocalPlayer = LP.LocalPlayer
 
--- SỬA ĐOẠN NÀY ĐỂ DELTA NHẬN GUI CHUẨN VÀ KHÔNG BỊ LỖI KHÔNG BẬT
-local TargetParent = (syn and syn.protect_gui) and game:GetService("CoreGui") or (LocalPlayer:FindFirstChild("PlayerGui") or game:GetService("CoreGui"))
-
--- DỌN GUI CŨ
-if TargetParent:FindFirstChild("HiepGiaHubFull") then
-	TargetParent.HiepGiaHubFull:Destroy()
+-- ÉP THẲNG VÀO COREGUI ĐỂ DELTA HIỂN THỊ ĐƯỢC
+if CoreGui:FindFirstChild("HiepGiaHubFull") then
+	CoreGui.HiepGiaHubFull:Destroy()
 end
 
 local SG = Instance.new("ScreenGui")
@@ -22,12 +20,12 @@ SG.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 if syn and syn.protect_gui then
 	syn.protect_gui(SG)
-	SG.Parent = game:GetService("CoreGui")
+	SG.Parent = CoreGui
 else
-	SG.Parent = TargetParent
+	SG.Parent = CoreGui
 end
 
-local Connections = {} -- Lưu trữ kết nối để cleanup khi unload
+local Connections = {}
 
 local function C(cls, p, parent)
 	local o = Instance.new(cls)
@@ -40,7 +38,6 @@ local function C(cls, p, parent)
 	return o
 end
 
--- HÀM KÉO NÚT CẢM ỨNG
 local function drag(g)
 	local dragging, dragStart, startPos
 	table.insert(Connections, g.InputBegan:Connect(function(input)
@@ -423,6 +420,33 @@ table.insert(Connections, FBtn.MouseButton1Click:Connect(function()
 	end
 end))
 
+-- ANTI INVISIBILITY
+local AntiInvisBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Anti Invisibility: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
+C("UICorner", {CornerRadius = UDim.new(0, 8)}, AntiInvisBtn)
+local isAntiInvis = false
+
+table.insert(Connections, AntiInvisBtn.MouseButton1Click:Connect(function()
+	isAntiInvis = not isAntiInvis
+	AntiInvisBtn.Text = "Anti Invisibility: " .. (isAntiInvis and "ON 🕵️‍♂️" or "OFF")
+	AntiInvisBtn.TextColor3 = isAntiInvis and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
+end))
+
+table.insert(Connections, RS.RenderStepped:Connect(function()
+	if isAntiInvis then
+		for _, plr in pairs(LP:GetPlayers()) do
+			if plr ~= LocalPlayer and plr.Character then
+				for _, part in ipairs(plr.Character:GetDescendants()) do
+					if part:IsA("BasePart") and part.Transparency >= 0.9 then
+						part.Transparency = 0
+					elseif part:IsA("Decal") and part.Transparency >= 0.9 then
+						part.Transparency = 0
+					end
+				end
+			end
+		end
+	end
+end))
+
 -- TOUCH FLING
 local TouchFlingBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Touch Fling: TẮT", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(150, 50, 50)}, P2)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, TouchFlingBtn)
@@ -531,7 +555,7 @@ local function refreshTrackerList()
 			table.insert(Connections, nameBtn.MouseButton1Click:Connect(function()
 				selectedTarget = player
 				if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-					LocalPlayer.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 0.2)
+					LocalPlayer.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 2.2)
 				end
 				refreshTrackerList()
 			end))
@@ -548,7 +572,6 @@ local function refreshTrackerList()
 	end
 end
 
--- AUTO FOLLOW ĐÃ ĐƯỢC GIỮ NGUYÊN BẢN TỐI ƯU (DÍNH SÁT RẠT & TẮT VA CHẠM)
 table.insert(Connections, followBtn.MouseButton1Click:Connect(function()
 	if not selectedTarget then return end
 	isFollowing = not isFollowing
@@ -560,10 +583,8 @@ table.insert(Connections, followBtn.MouseButton1Click:Connect(function()
 				local myHrp = LocalPlayer.Character.HumanoidRootPart
 				local targetHrp = selectedTarget.Character.HumanoidRootPart
 				
-				-- Dính sát vào lưng (khoảng cách rất nhỏ)
-				myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 0.2)
+				myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 2.2)
 				
-				-- Tắt va chạm tạm thời để không bị đẩy văng
 				for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
 					if part:IsA("BasePart") then
 						part.CanCollide = false
@@ -580,7 +601,7 @@ table.insert(Connections, LP.PlayerAdded:Connect(refreshTrackerList))
 table.insert(Connections, LP.PlayerRemoving:Connect(refreshTrackerList))
 refreshTrackerList()
 
--- ==================== TROLL PLAYER (ĐÃ ĐƯA VỀ GỐC) ====================
+-- ==================== TROLL PLAYER (ĐÃ FIX KHÔNG BỊ ĐỨNG IM) ====================
 C("TextLabel", {Size = UDim2.new(0.98, 0, 0, 20), Text = "--- TROLL PLAYER 🤫 ---", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 12, Font = Enum.Font.SourceSansBold, BackgroundTransparency = 1}, P2)
 local ToggleTrollBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "CHỌN NGƯỜI ĐỂ TROLL", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 12, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(100, 100, 100)}, P2)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, ToggleTrollBtn)
@@ -613,13 +634,24 @@ local function updatePlayerList()
 				ToggleTrollBtn.Text = "TẮT TROLL: " .. plr.DisplayName
 				ToggleTrollBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
 				if trollConn then trollConn:Disconnect() end
-				trollConn = RS.RenderStepped:Connect(function()
+				
+				trollConn = RS.Heartbeat:Connect(function()
 					if not isTrolling or not targetPlayer or not targetPlayer.Character then stopTroll() return end
-					local myHrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+					local myChar = LocalPlayer.Character
+					local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
 					local targetHrp = targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+					
 					if myHrp and targetHrp then
 						Camera.CameraSubject = targetPlayer.Character:FindFirstChild("Humanoid")
-						myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 1)
+						
+						-- Bám sát lưng theo hướng nhìn của mục tiêu, không bị đơ chân
+						local targetCF = targetHrp.CFrame
+						local backPosition = targetCF.Position - (targetCF.LookVector * 2.2)
+						myHrp.CFrame = CFrame.new(backPosition, backPosition + targetCF.LookVector)
+						
+						for _, part in ipairs(myChar:GetDescendants()) do
+							if part:IsA("BasePart") then part.CanCollide = false end
+						end
 					end
 				end)
 				table.insert(Connections, trollConn)
@@ -686,8 +718,8 @@ table.insert(Connections, CatchBtn.MouseButton1Click:Connect(function()
 							local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
 							local myChar = LocalPlayer.Character
 							local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
-							if myHrp && targetHrp && targetHum && targetHum.Health > 0 then
-								myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 0.5)
+							if myHrp and targetHrp and targetHum and targetHum.Health > 0 then
+								myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 2.2)
 							else
 								break
 							end
@@ -723,8 +755,8 @@ table.insert(Connections, CatchSlowBtn.MouseButton1Click:Connect(function()
 							local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
 							local myChar = LocalPlayer.Character
 							local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
-							if myHrp && targetHrp && targetHum && targetHum.Health > 0 then
-								myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 0.5)
+							if myHrp and targetHrp and targetHum and targetHum.Health > 0 then
+								myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 2.2)
 							else
 								break
 							end
