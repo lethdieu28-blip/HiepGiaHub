@@ -601,7 +601,7 @@ table.insert(Connections, LP.PlayerAdded:Connect(refreshTrackerList))
 table.insert(Connections, LP.PlayerRemoving:Connect(refreshTrackerList))
 refreshTrackerList()
 
--- ==================== TROLL PLAYER (ĐÃ FIX KHÔNG BỊ ĐỨNG IM) ====================
+-- ==================== TROLL PLAYER (LAO TỚI CHẠM KHÍT LƯNG LÀ DỪNG) ====================
 C("TextLabel", {Size = UDim2.new(0.98, 0, 0, 20), Text = "--- TROLL PLAYER 🤫 ---", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 12, Font = Enum.Font.SourceSansBold, BackgroundTransparency = 1}, P2)
 local ToggleTrollBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "CHỌN NGƯỜI ĐỂ TROLL", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 12, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(100, 100, 100)}, P2)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, ToggleTrollBtn)
@@ -644,10 +644,10 @@ local function updatePlayerList()
 					if myHrp and targetHrp then
 						Camera.CameraSubject = targetPlayer.Character:FindFirstChild("Humanoid")
 						
-						-- Bám sát lưng theo hướng nhìn của mục tiêu, không bị đơ chân
+						-- Lao tới, chạm đúng khít sát phần lưng mục tiêu (2.2 studs) rồi bám chặt dừng lại luôn
 						local targetCF = targetHrp.CFrame
-						local backPosition = targetCF.Position - (targetCF.LookVector * 2.2)
-						myHrp.CFrame = CFrame.new(backPosition, backPosition + targetCF.LookVector)
+						local exactBackPos = targetCF.Position - (targetCF.LookVector * 2.2)
+						myHrp.CFrame = CFrame.new(exactBackPos, exactBackPos + targetCF.LookVector)
 						
 						for _, part in ipairs(myChar:GetDescendants()) do
 							if part:IsA("BasePart") then part.CanCollide = false end
