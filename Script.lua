@@ -555,7 +555,7 @@ local function refreshTrackerList()
 			table.insert(Connections, nameBtn.MouseButton1Click:Connect(function()
 				selectedTarget = player
 				if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-					LocalPlayer.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 2.4)
+					LocalPlayer.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 1.15)
 				end
 				refreshTrackerList()
 			end))
@@ -583,7 +583,7 @@ table.insert(Connections, followBtn.MouseButton1Click:Connect(function()
 				local myHrp = LocalPlayer.Character.HumanoidRootPart
 				local targetHrp = selectedTarget.Character.HumanoidRootPart
 				
-				myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 2.4)
+				myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 1.15)
 				
 				for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
 					if part:IsA("BasePart") then
@@ -601,7 +601,7 @@ table.insert(Connections, LP.PlayerAdded:Connect(refreshTrackerList))
 table.insert(Connections, LP.PlayerRemoving:Connect(refreshTrackerList))
 refreshTrackerList()
 
--- ==================== TROLL PLAYER (VỪA KHÍT LƯNG, TIẾN LÙI LIÊN TỤC) ====================
+-- ==================== TROLL PLAYER (ÁP SÁT CỰC GẦN DÍNH LƯNG) ====================
 C("TextLabel", {Size = UDim2.new(0.98, 0, 0, 20), Text = "--- TROLL PLAYER 🤫 ---", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 12, Font = Enum.Font.SourceSansBold, BackgroundTransparency = 1}, P2)
 local ToggleTrollBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "CHỌN NGƯỜI ĐỂ TROLL", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 12, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(100, 100, 100)}, P2)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, ToggleTrollBtn)
@@ -634,9 +634,9 @@ local function updatePlayerList()
 				ToggleTrollBtn.Text = "TẮT TROLL: " .. plr.DisplayName
 				ToggleTrollBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
 				
-				-- Teleport áp sát ngay sau lưng (2.4 studs)
+				-- Teleport dính sát rạt ngay sau lưng (1.15 studs)
 				if targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-					LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 2.4)
+					LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 1.15)
 				end
 
 				if trollConn then trollConn:Disconnect() end
@@ -648,8 +648,8 @@ local function updatePlayerList()
 					if myHrp and targetHrp then
 						Camera.CameraSubject = targetPlayer.Character:FindFirstChild("Humanoid")
 						
-						-- Tiến lùi mượt mà từ 1.8 đến 2.8 studs (chạm khít lưng hoàn hảo, không bị xuyên người)
-						local moveOffset = math.sin(tick() * 6) * 0.5 + 2.3
+						-- Tiến lùi cực sát từ 0.8 đến 1.5 studs (dính sát rạt lưng mục tiêu)
+						local moveOffset = math.sin(tick() * 6) * 0.35 + 1.15
 						myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, moveOffset)
 						
 						-- Tắt va chạm để không bị văng
@@ -723,7 +723,7 @@ table.insert(Connections, CatchBtn.MouseButton1Click:Connect(function()
 							local myChar = LocalPlayer.Character
 							local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
 							if myHrp and targetHrp and targetHum and targetHum.Health > 0 then
-								myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 2.4)
+								myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 1.15)
 							else
 								break
 							end
@@ -760,7 +760,7 @@ table.insert(Connections, CatchSlowBtn.MouseButton1Click:Connect(function()
 							local myChar = LocalPlayer.Character
 							local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
 							if myHrp and targetHrp and targetHum and targetHum.Health > 0 then
-								myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 2.4)
+								myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 1.15)
 							else
 								break
 							end
