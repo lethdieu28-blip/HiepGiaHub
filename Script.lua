@@ -1,4 +1,4 @@
--- HiepGia Hub Full - Đã khôi phục toàn bộ tính năng và tinh chỉnh dính sát lưng cực khít
+-- HiepGia Hub Full - Đã tối ưu hóa hoàn toàn và mượt mà trên Mobile/Delta
 local TS = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
 local RS = game:GetService("RunService")
@@ -200,7 +200,7 @@ local JBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Auto Jum
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, JBtn)
 local aJ = false
 task.spawn(function()
-	while true do
+	while SG and SG.Parent do
 		if aJ and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
 			local h = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
 			if h.FloorMaterial ~= Enum.Material.Air then
@@ -388,7 +388,7 @@ TouchFlingBtn.MouseButton1Click:Connect(function()
 end)
 
 task.spawn(function()
-	while true do
+	while SG and SG.Parent do
 		RS.Heartbeat:Wait()
 		if hiddenFling then
 			local char = LocalPlayer.Character
@@ -535,13 +535,13 @@ CatchBtn.MouseButton1Click:Connect(function()
 	CatchBtn.TextColor3 = isCatchingUp and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
 	if isCatchingUp then
 		task.spawn(function()
-			while isCatchingUp do
+			while isCatchingUp and SG and SG.Parent do
 				local playersList = LP:GetPlayers()
 				for _, targetPlr in ipairs(playersList) do
 					if not isCatchingUp then break end
 					if targetPlr ~= LocalPlayer and targetPlr.Character then
 						local startTime = tick()
-						while isCatchingUp and (tick() - startTime < 0.3) do
+						while isCatchingUp and SG and SG.Parent and (tick() - startTime < 0.3) do
 							local targetHrp = targetPlr.Character:FindFirstChild("HumanoidRootPart")
 							local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
 							local myChar = LocalPlayer.Character
@@ -572,13 +572,13 @@ CatchSlowBtn.MouseButton1Click:Connect(function()
 	CatchSlowBtn.TextColor3 = isCatchingUpSlow and Color3.fromRGB(80, 255, 80) or Color3.fromRGB(255, 70, 70)
 	if isCatchingUpSlow then
 		task.spawn(function()
-			while isCatchingUpSlow do
+			while isCatchingUpSlow and SG and SG.Parent do
 				local playersList = LP:GetPlayers()
 				for _, targetPlr in ipairs(playersList) do
 					if not isCatchingUpSlow then break end
 					if targetPlr ~= LocalPlayer and targetPlr.Character then
 						local startTime = tick()
-						while isCatchingUpSlow and (tick() - startTime < 5) do
+						while isCatchingUpSlow and SG and SG.Parent and (tick() - startTime < 5) do
 							local targetHrp = targetPlr.Character:FindFirstChild("HumanoidRootPart")
 							local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
 							local myChar = LocalPlayer.Character
