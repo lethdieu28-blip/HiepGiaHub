@@ -1,4 +1,4 @@
--- HiepGia Hub Full - Đã tích hợp Theo Dõi Dính Sát (Stick to Back)
+-- HiepGia Hub Full - Đã khôi phục toàn bộ tính năng và tinh chỉnh dính sát lưng cực khít
 local TS = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
 local RS = game:GetService("RunService")
@@ -423,10 +423,9 @@ TPBtn.MouseButton1Click:Connect(function()
 	TPBtn.Text = "Nhận Tool Teleport"
 end)
 
--- ==================== TÍNH NĂNG MỚI: DẠNG THEO DÕI DÍNH SÁT ====================
+-- ==================== THEO DÕI DÍNH SÁT (ĐÃ ÉP KHÍT VÀO LƯNG) ====================
 C("TextLabel", {Size = UDim2.new(0.98, 0, 0, 20), Text = "--- THEO DÕI DÍNH SÁT 📌 ---", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 12, Font = Enum.Font.SourceSansBold, BackgroundTransparency = 1}, P2)
 
--- Dòng chữ đỏ yêu cầu: “ Dạng theo dõi dính sát”
 local StickStatusLabel = C("TextLabel", {Size = UDim2.new(0.98, 0, 0, 25), Text = "🔴 Dạng theo dõi dính sát", TextColor3 = Color3.fromRGB(255, 0, 0), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundTransparency = 1}, P2)
 
 local StickScrollList = C("ScrollingFrame", {Size = UDim2.new(0.98, 0, 0, 120), BackgroundColor3 = Color3.fromRGB(20, 20, 28), ScrollBarThickness = 4, AutomaticCanvasSize = Enum.AutomaticSize.Y}, P2)
@@ -461,8 +460,8 @@ local function updateStickPlayerList()
 						local targetRoot = targetChar:FindFirstChild("HumanoidRootPart")
 						
 						if localRoot and targetRoot then
-							-- Dính sát vào lưng mục tiêu
-							localRoot.CFrame = targetRoot.CFrame * CFrame.new(0, 0, 2.5)
+							-- Dính cực sát vào lưng mục tiêu (z = 1.2 thay vì 2.5)
+							localRoot.CFrame = targetRoot.CFrame * CFrame.new(0, 0, 1.2)
 						end
 					end
 				end)
