@@ -1,5 +1,5 @@
 -- ========================================================
--- HIEP GIA HUB FULL - OPTIMIZED & FIXED FOR DELTA MOBILE
+-- HIEP GIA HUB FULL - OPTIMIZED & RESTORED TROLL PLAYER
 -- ========================================================
 local TS = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
@@ -545,7 +545,7 @@ local function refreshTrackerList()
 	end
 end
 
--- AUTO FOLLOW ĐÃ ĐƯỢC CHỈNH DÍNH SÁT RẠT VÀ TẮT VA CHẠM
+-- AUTO FOLLOW ĐÃ ĐƯỢC GIỮ NGUYÊN BẢN TỐI ƯU (DÍNH SÁT RẠT & TẮT VA CHẠM)
 table.insert(Connections, followBtn.MouseButton1Click:Connect(function()
 	if not selectedTarget then return end
 	isFollowing = not isFollowing
@@ -577,7 +577,7 @@ table.insert(Connections, LP.PlayerAdded:Connect(refreshTrackerList))
 table.insert(Connections, LP.PlayerRemoving:Connect(refreshTrackerList))
 refreshTrackerList()
 
--- TROLL PLAYER
+-- ==================== TROLL PLAYER (ĐÃ ĐƯA VỀ GỐC) ====================
 C("TextLabel", {Size = UDim2.new(0.98, 0, 0, 20), Text = "--- TROLL PLAYER 🤫 ---", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 12, Font = Enum.Font.SourceSansBold, BackgroundTransparency = 1}, P2)
 local ToggleTrollBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "CHỌN NGƯỜI ĐỂ TROLL", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 12, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(100, 100, 100)}, P2)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, ToggleTrollBtn)
@@ -610,21 +610,13 @@ local function updatePlayerList()
 				ToggleTrollBtn.Text = "TẮT TROLL: " .. plr.DisplayName
 				ToggleTrollBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
 				if trollConn then trollConn:Disconnect() end
-				local cT = 0
-				trollConn = RS.RenderStepped:Connect(function(dt)
+				trollConn = RS.RenderStepped:Connect(function()
 					if not isTrolling or not targetPlayer or not targetPlayer.Character then stopTroll() return end
 					local myHrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 					local targetHrp = targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
 					if myHrp and targetHrp then
 						Camera.CameraSubject = targetPlayer.Character:FindFirstChild("Humanoid")
-						cT = cT + dt * 10
-						myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 0.1 + math.sin(cT) * 0.1)
-						
-						for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
-							if part:IsA("BasePart") then
-								part.CanCollide = false
-							end
-						end
+						myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 1)
 					end
 				end)
 				table.insert(Connections, trollConn)
@@ -691,7 +683,7 @@ table.insert(Connections, CatchBtn.MouseButton1Click:Connect(function()
 							local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
 							local myChar = LocalPlayer.Character
 							local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
-							if myHrp and targetHrp and targetHum and targetHum.Health > 0 then
+							if myHrp && targetHrp && targetHum && targetHum.Health > 0 then
 								myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 0.5)
 							else
 								break
@@ -728,7 +720,7 @@ table.insert(Connections, CatchSlowBtn.MouseButton1Click:Connect(function()
 							local targetHum = targetPlr.Character:FindFirstChildOfClass("Humanoid")
 							local myChar = LocalPlayer.Character
 							local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
-							if myHrp and targetHrp and targetHum and targetHum.Health > 0 then
+							if myHrp && targetHrp && targetHum && targetHum.Health > 0 then
 								myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 0.5)
 							else
 								break
