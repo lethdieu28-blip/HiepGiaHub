@@ -1,3 +1,4 @@
+-- HiepGia Hub Full - Đã tích hợp Theo Dõi Dính Sát (Stick to Back)
 local TS = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
 local RS = game:GetService("RunService")
@@ -310,7 +311,7 @@ LocalPlayer.CharacterAdded:Connect(function()
 	if spinning then stopSpin() end
 end)
 
--- ==================== TAB 2 (FLY & TP & TOUCH FLING) ====================
+-- ==================== TAB 2 (FLY & TP & TOUCH FLING & DÍNH SÁT) ====================
 local FBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "Fly: OFF", TextColor3 = Color3.fromRGB(255, 70, 70), TextSize = 14, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
 C("UICorner", {CornerRadius = UDim.new(0, 8)}, FBtn)
 
@@ -392,9 +393,13 @@ task.spawn(function()
 		if hiddenFling then
 			local char = LocalPlayer.Character
 			local hrp = char and char:FindFirstChild("HumanoidRootPart")
-			if hrp then
+			local hum = char and char:FindFirstChildOfClass("Humanoid")
+			if hrp and hum then
+				hum:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+				hum:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+				
 				local vel = hrp.AssemblyLinearVelocity
-				hrp.AssemblyLinearVelocity = vel * 10000 + Vector3.new(0, 10000, 0)
+				hrp.AssemblyLinearVelocity = (vel * 30000) + Vector3.new(0, 5000, 0)
 				RS.RenderStepped:Wait()
 				hrp.AssemblyLinearVelocity = vel
 			end
@@ -418,138 +423,47 @@ TPBtn.MouseButton1Click:Connect(function()
 	TPBtn.Text = "Nhận Tool Teleport"
 end)
 
--- PLAYER TRACKER
-local TogFrame = C("Frame", {Size = UDim2.new(0.98, 0, 0, 35), BackgroundColor3 = Color3.fromRGB(35, 35, 42)}, P2)
-C("UICorner", {CornerRadius = UDim.new(0, 8)}, TogFrame)
-C("TextLabel", {Size = UDim2.new(0.6, 0, 1, 0), Position = UDim2.new(0.04, 0, 0, 0), Text = "Player Tracker", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 13, Font = Enum.Font.SourceSansBold, TextXAlignment = 0, BackgroundTransparency = 1}, TogFrame)
-local SwitchBG = C("Frame", {Size = UDim2.new(0, 45, 0, 20), Position = UDim2.new(1, -50, 0.5, -10), BackgroundColor3 = Color3.fromRGB(60, 60, 65)}, TogFrame)
-C("UICorner", {CornerRadius = UDim.new(1, 0)}, SwitchBG)
-local SwitchCircle = C("Frame", {Size = UDim2.new(0, 16, 0, 16), Position = UDim2.new(0, 2, 0.5, -8), BackgroundColor3 = Color3.fromRGB(200, 200, 200)}, SwitchBG)
-C("UICorner", {CornerRadius = UDim.new(1, 0)}, SwitchCircle)
-local SwitchClick = C("TextButton", {Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Text = ""}, SwitchBG)
+-- ==================== TÍNH NĂNG MỚI: DẠNG THEO DÕI DÍNH SÁT ====================
+C("TextLabel", {Size = UDim2.new(0.98, 0, 0, 20), Text = "--- THEO DÕI DÍNH SÁT 📌 ---", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 12, Font = Enum.Font.SourceSansBold, BackgroundTransparency = 1}, P2)
 
-local mainFrame = C("Frame", {Size = UDim2.new(0, 220, 0, 260), Position = UDim2.new(1, -230, 0.1, 0), BackgroundColor3 = Color3.fromRGB(30, 30, 30), Active = true, Visible = false, ClipsDescendants = true}, SG)
-C("UICorner", {CornerRadius = UDim.new(0, 10)}, mainFrame)
-C("UIStroke", {Color = Color3.fromRGB(0, 170, 255), Thickness = 1.5}, mainFrame)
-drag(mainFrame)
+-- Dòng chữ đỏ yêu cầu: “ Dạng theo dõi dính sát”
+local StickStatusLabel = C("TextLabel", {Size = UDim2.new(0.98, 0, 0, 25), Text = "🔴 Dạng theo dõi dính sát", TextColor3 = Color3.fromRGB(255, 0, 0), TextSize = 13, Font = Enum.Font.SourceSansBold, BackgroundTransparency = 1}, P2)
 
-C("TextLabel", {Size = UDim2.new(1, 0, 0, 30), BackgroundColor3 = Color3.fromRGB(45, 45, 45), Text = "TRACKER", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 13, Font = Enum.Font.SourceSansBold}, mainFrame)
-local scrollingFrame = C("ScrollingFrame", {Size = UDim2.new(1, -10, 1, -80), Position = UDim2.new(0, 5, 0, 35), BackgroundTransparency = 1, AutomaticCanvasSize = Enum.AutomaticSize.Y, ScrollBarThickness = 4}, mainFrame)
-C("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 4)}, scrollingFrame)
-local followBtn = C("TextButton", {Size = UDim2.new(1, -10, 0, 35), Position = UDim2.new(0, 5, 1, -40), Text = "AUTO FOLLOW: OFF", BackgroundColor3 = Color3.fromRGB(180, 50, 50), TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.SourceSansBold, TextSize = 12}, mainFrame)
-C("UICorner", {CornerRadius = UDim.new(0, 6)}, followBtn)
+local StickScrollList = C("ScrollingFrame", {Size = UDim2.new(0.98, 0, 0, 120), BackgroundColor3 = Color3.fromRGB(20, 20, 28), ScrollBarThickness = 4, AutomaticCanvasSize = Enum.AutomaticSize.Y}, P2)
+C("UICorner", {CornerRadius = UDim.new(0, 6)}, StickScrollList)
+C("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 4)}, StickScrollList)
 
-local isTrackerEnabled = false
-SwitchClick.MouseButton1Click:Connect(function()
-	isTrackerEnabled = not isTrackerEnabled
-	TS:Create(SwitchCircle, TweenInfo.new(0.2), {Position = isTrackerEnabled and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)}):Play()
-	TS:Create(SwitchBG, TweenInfo.new(0.2), {BackgroundColor3 = isTrackerEnabled and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(60, 60, 65)}):Play()
-	mainFrame.Visible = isTrackerEnabled
-end)
+local stickTargetPlayer = nil
+local stickConnection = nil
 
-local selectedTarget, spectateTarget, isFollowing, followConnection = nil, nil, false, nil
-local Camera = workspace.CurrentCamera
-
-RS.RenderStepped:Connect(function()
-	if spectateTarget and spectateTarget.Character and spectateTarget.Character:FindFirstChild("Humanoid") then
-		Camera.CameraSubject = spectateTarget.Character.Humanoid
-	end
-end)
-
-local function refreshTrackerList()
-	for _, child in pairs(scrollingFrame:GetChildren()) do
-		if child:IsA("Frame") then child:Destroy() end
-	end
-	for _, player in pairs(LP:GetPlayers()) do
-		if player ~= LocalPlayer then
-			local itemFrame = C("Frame", {Size = UDim2.new(1, 0, 0, 30), BackgroundColor3 = Color3.fromRGB(45, 45, 45)}, scrollingFrame)
-			C("UICorner", {CornerRadius = UDim.new(0, 4)}, itemFrame)
-			local nameBtn = C("TextButton", {Size = UDim2.new(0.65, 0, 1, 0), Text = " " .. player.DisplayName, TextXAlignment = 0, BackgroundColor3 = (selectedTarget == player) and Color3.fromRGB(0, 150, 200) or Color3.fromRGB(55, 55, 55), TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.SourceSans, TextSize = 11}, itemFrame)
-			C("UICorner", {CornerRadius = UDim.new(0, 4)}, nameBtn)
-			local visBtn = C("TextButton", {Size = UDim2.new(0.32, 0, 0.8, 0), Position = UDim2.new(0.66, 2, 0.1, 0), Text = (spectateTarget == player) and "CAM: ON" or "CAM: OFF", BackgroundColor3 = (spectateTarget == player) and Color3.fromRGB(50, 180, 50) or Color3.fromRGB(150, 50, 50), TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.SourceSansBold, TextSize = 10}, itemFrame)
-			C("UICorner", {CornerRadius = UDim.new(0, 4)}, visBtn)
-			
-			nameBtn.MouseButton1Click:Connect(function()
-				selectedTarget = player
-				if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-					LocalPlayer.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 2)
-				end
-				refreshTrackerList()
-			end)
-			visBtn.MouseButton1Click:Connect(function()
-				if spectateTarget == player then
-					spectateTarget = nil
-					if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then Camera.CameraSubject = LocalPlayer.Character.Humanoid end
-				else
-					spectateTarget = player
-				end
-				refreshTrackerList()
-			end)
-		end
-	end
-end
-
-followBtn.MouseButton1Click:Connect(function()
-	if not selectedTarget then return end
-	isFollowing = not isFollowing
-	followBtn.Text = isFollowing and ("FOLLOW: " .. string.upper(selectedTarget.DisplayName)) or "AUTO FOLLOW: OFF"
-	followBtn.BackgroundColor3 = isFollowing and Color3.fromRGB(50, 180, 50) or Color3.fromRGB(180, 50, 50)
-	if isFollowing then
-		followConnection = RS.RenderStepped:Connect(function()
-			if isFollowing and selectedTarget and selectedTarget.Character and selectedTarget.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-				LocalPlayer.Character.HumanoidRootPart.CFrame = selectedTarget.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 2)
-			end
-		end)
-	else
-		if followConnection then followConnection:Disconnect() end
-	end
-end)
-LP.PlayerAdded:Connect(refreshTrackerList)
-LP.PlayerRemoving:Connect(refreshTrackerList)
-refreshTrackerList()
-
--- TROLL PLAYER
-C("TextLabel", {Size = UDim2.new(0.98, 0, 0, 20), Text = "--- TROLL PLAYER 🤫 ---", TextColor3 = Color3.fromRGB(0, 210, 255), TextSize = 12, Font = Enum.Font.SourceSansBold, BackgroundTransparency = 1}, P2)
-local ToggleTrollBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 35), Text = "CHỌN NGƯỜI ĐỂ TROLL", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 12, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(100, 100, 100)}, P2)
-C("UICorner", {CornerRadius = UDim.new(0, 8)}, ToggleTrollBtn)
-
-local ScrollList = C("ScrollingFrame", {Size = UDim2.new(0.98, 0, 0, 100), BackgroundColor3 = Color3.fromRGB(20, 20, 28), ScrollBarThickness = 4, AutomaticCanvasSize = Enum.AutomaticSize.Y}, P2)
-C("UICorner", {CornerRadius = UDim.new(0, 6)}, ScrollList)
-C("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 4)}, ScrollList)
-
-local targetPlayer, isTrolling, trollConn = nil, false, nil
-local function stopTroll()
-	isTrolling = false
-	targetPlayer = nil
-	ToggleTrollBtn.Text = "CHỌN NGƯỜI ĐỂ TROLL"
-	ToggleTrollBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-	if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then Camera.CameraSubject = LocalPlayer.Character.Humanoid end
-	if trollConn then trollConn:Disconnect() end
-end
-
-local function updatePlayerList()
-	for _, child in pairs(ScrollList:GetChildren()) do
+local function updateStickPlayerList()
+	for _, child in pairs(StickScrollList:GetChildren()) do
 		if child:IsA("TextButton") then child:Destroy() end
 	end
 	for _, plr in pairs(LP:GetPlayers()) do
 		if plr ~= LocalPlayer then
-			local pBtn = C("TextButton", {Size = UDim2.new(1, -4, 0, 25), Text = plr.DisplayName, TextColor3 = Color3.fromRGB(255, 255, 255), BackgroundColor3 = Color3.fromRGB(45, 45, 55), Font = Enum.Font.SourceSans, TextSize = 12}, ScrollList)
+			local pBtn = C("TextButton", {Size = UDim2.new(1, -4, 0, 28), Text = "Bám dính: " .. plr.DisplayName, TextColor3 = Color3.fromRGB(255, 255, 255), BackgroundColor3 = Color3.fromRGB(45, 45, 55), Font = Enum.Font.SourceSans, TextSize = 12}, StickScrollList)
 			C("UICorner", {CornerRadius = UDim.new(0, 4)}, pBtn)
 			pBtn.MouseButton1Click:Connect(function()
-				targetPlayer = plr
-				isTrolling = true
-				ToggleTrollBtn.Text = "TẮT TROLL: " .. plr.DisplayName
-				ToggleTrollBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
-				if trollConn then trollConn:Disconnect() end
-				local cT = 0
-				trollConn = RS.RenderStepped:Connect(function(dt)
-					if not isTrolling or not targetPlayer or not targetPlayer.Character then stopTroll() return end
-					local myHrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-					local targetHrp = targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
-					if myHrp and targetHrp then
-						Camera.CameraSubject = targetPlayer.Character:FindFirstChild("Humanoid")
-						cT = cT + dt * 10
-						myHrp.CFrame = targetHrp.CFrame * CFrame.new(0, 0, 1.5 + math.sin(cT) * 0.5)
+				stickTargetPlayer = plr
+				StickStatusLabel.Text = "🔴 Đang dính: " .. plr.DisplayName
+				
+				if stickConnection then
+					stickConnection:Disconnect()
+				end
+				
+				stickConnection = RS.RenderStepped:Connect(function()
+					local localChar = LocalPlayer.Character
+					local targetChar = stickTargetPlayer and stickTargetPlayer.Character
+					
+					if localChar and targetChar then
+						local localRoot = localChar:FindFirstChild("HumanoidRootPart")
+						local targetRoot = targetChar:FindFirstChild("HumanoidRootPart")
+						
+						if localRoot and targetRoot then
+							-- Dính sát vào lưng mục tiêu
+							localRoot.CFrame = targetRoot.CFrame * CFrame.new(0, 0, 2.5)
+						end
 					end
 				end)
 			end)
@@ -557,13 +471,31 @@ local function updatePlayerList()
 	end
 end
 
-ToggleTrollBtn.MouseButton1Click:Connect(stopTroll)
-LP.PlayerAdded:Connect(updatePlayerList)
-LP.PlayerRemoving:Connect(function(plr)
-	if targetPlayer == plr then stopTroll() end
-	updatePlayerList()
+local StopStickBtn = C("TextButton", {Size = UDim2.new(0.98, 0, 0, 30), Text = "🛑 HỦY BÁM DÍNH", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 12, Font = Enum.Font.SourceSansBold, BackgroundColor3 = Color3.fromRGB(180, 0, 0)}, P2)
+C("UICorner", {CornerRadius = UDim.new(0, 6)}, StopStickBtn)
+
+StopStickBtn.MouseButton1Click:Connect(function()
+	if stickConnection then
+		stickConnection:Disconnect()
+		stickConnection = nil
+	end
+	stickTargetPlayer = nil
+	StickStatusLabel.Text = "🔴 Dạng theo dõi dính sát"
 end)
-updatePlayerList()
+
+LP.PlayerAdded:Connect(updateStickPlayerList)
+LP.PlayerRemoving:Connect(function(plr)
+	if stickTargetPlayer == plr then
+		if stickConnection then
+			stickConnection:Disconnect()
+			stickConnection = nil
+		end
+		stickTargetPlayer = nil
+		StickStatusLabel.Text = "🔴 Dạng theo dõi dính sát"
+	end
+	updateStickPlayerList()
+end)
+updateStickPlayerList()
 
 -- ==================== TAB CATCHING UP ====================
 local CatchNotice = C("TextLabel", {
@@ -695,10 +627,11 @@ DestroyBtn.MouseButton1Click:Connect(function()
 	if spinning then stopSpin() end
 	isCatchingUp = false
 	isCatchingUpSlow = false
+	if stickConnection then stickConnection:Disconnect() end
 	SG:Destroy()
 end)
 
--- ==================== HIỆU ỨNG HÌNH TRÒN (ĐÃ ĐỔI TỪ GIỌT NƯỚC SANG TRÒN) ====================
+-- ==================== HIỆU ỨNG HÌNH TRÒN ====================
 local isOpen = true
 
 local function createCircleEffect(startPos, endPos, size, isDropping)
@@ -711,7 +644,6 @@ local function createCircleEffect(startPos, endPos, size, isDropping)
 		ZIndex = 999
 	}, SG)
 	
-	-- Phần thân hình tròn
 	local circleBody = C("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.new(0.5, 0, 0.5, 0),
