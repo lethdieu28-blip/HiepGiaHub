@@ -5,13 +5,10 @@ local TS = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
 local RS = game:GetService("RunService")
 local LP = game:GetService("Players")
-local LocalPlayer = LP.LocalPlayer or LP:GetPropertyChangedSignal("LocalPlayer"):Wait()
+local LocalPlayer = LP.LocalPlayer
 
--- BẢO VỆ LOAD PLAYERGUI TRÊN DELTA MOBILE
-local TargetParent = LocalPlayer:FindFirstChildOfClass("PlayerGui") or LocalPlayer:WaitForChild("PlayerGui", 5)
-if not TargetParent then 
-	TargetParent = LocalPlayer:FindFirstChild("CoreGui") or game:GetService("CoreGui")
-end
+-- SỬA ĐOẠN NÀY ĐỂ DELTA NHẬN GUI CHUẨN VÀ KHÔNG BỊ LỖI KHÔNG BẬT
+local TargetParent = (syn and syn.protect_gui) and game:GetService("CoreGui") or (LocalPlayer:FindFirstChild("PlayerGui") or game:GetService("CoreGui"))
 
 -- DỌN GUI CŨ
 if TargetParent:FindFirstChild("HiepGiaHubFull") then
@@ -22,7 +19,13 @@ local SG = Instance.new("ScreenGui")
 SG.Name = "HiepGiaHubFull"
 SG.ResetOnSpawn = false
 SG.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-SG.Parent = TargetParent
+
+if syn and syn.protect_gui then
+	syn.protect_gui(SG)
+	SG.Parent = game:GetService("CoreGui")
+else
+	SG.Parent = TargetParent
+end
 
 local Connections = {} -- Lưu trữ kết nối để cleanup khi unload
 
