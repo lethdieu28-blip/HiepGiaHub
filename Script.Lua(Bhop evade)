@@ -1,0 +1,76 @@
+-- ========================================================
+-- HIEPEVADE - AUTO JUMP / BHOP (ONLY JUMP WHEN MOVING)
+-- ========================================================
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui", 10)
+if not PlayerGui then return end
+
+if PlayerGui:FindFirstChild("EvadeAutoJumpGui") then
+	PlayerGui.EvadeAutoJumpGui:Destroy()
+end
+
+local SG = Instance.new("ScreenGui")
+SG.Name = "EvadeAutoJumpGui"
+SG.ResetOnSpawn = false
+SG.Parent = PlayerGui
+
+-- NÚT TRÒN MINI KÉO RÊ DÀNH CHO AUTO JUMP
+local JumpButton = Instance.new("TextButton")
+JumpButton.Size = UDim2.new(0, 50, 0, 50)
+JumpButton.Position = UDim2.new(0.85, 0, 0.35, 0)
+JumpButton.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
+JumpButton.Text = "BHOP\n[ OFF ]"
+JumpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+JumpButton.TextSize = 9
+JumpButton.Font = Enum.Font.SourceSansBold
+JumpButton.Active = true
+JumpButton.Draggable = true
+JumpButton.Parent = SG
+
+Instance.new("UICorner", JumpButton).CornerRadius = UDim.new(1, 0)
+local CircleStroke = Instance.new("UIStroke", JumpButton)
+CircleStroke.Color = Color3.fromRGB(255, 255, 255)
+CircleStroke.Thickness = 1.5
+
+local autoJumpActive = false
+
+JumpButton.MouseButton1Click:Connect(function()
+	autoJumpActive = not autoJumpActive
+	if autoJumpActive then
+		JumpButton.BackgroundColor3 = Color3.fromRGB(0, 170, 80)
+		JumpButton.Text = "BHOP\n[ ON ]"
+		CircleStroke.Color = Color3.fromRGB(100, 255, 100)
+	else
+		JumpButton.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
+		JumpButton.Text = "BHOP\n[ OFF ]"
+		CircleStroke.Color = Color3.fromRGB(255, 255, 255)
+	end
+end)
+
+-- VÒNG LẶP AUTO JUMP BHOP (CHỈ NHẢY KHI ĐANG DI CHUYỂN)
+task.spawn(function()
+	while true do
+		task.wait(0.01)
+		if autoJumpActive then
+			pcall(function()
+				local char = LocalPlayer.Character
+				if char then
+					local humanoid = char:FindFirstChildOfClass("Humanoid")
+					local hrp = char:FindFirstChild("HumanoidRootPart")
+					
+					if humanoid and hrp and humanoid.Health > 0 then
+						-- Kiểm tra xem nhân vật có đang nhấn phím/cần gạt di chuyển không (MoveDirection > 0)
+						local isMoving = humanoid.MoveDirection.Magnitude > 0.1
+						
+						if isMoving and humanoid.FloorMaterial ~= Enum.Material.Air then
+							humanoid.Jump = true
+							humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+						end
+					end
+				end
+			end)
+		end
+	end
+end)
