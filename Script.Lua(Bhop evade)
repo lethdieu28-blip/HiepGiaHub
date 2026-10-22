@@ -1,5 +1,5 @@
 -- ========================================================
--- HIEPEVADE - AUTO JUMP / BHOP (ONLY JUMP WHEN MOVING)
+-- HIEPEVADE - AUTO JUMP / BHOP (FIXED MANUAL JUMP CONFLICT)
 -- ========================================================
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -49,10 +49,13 @@ JumpButton.MouseButton1Click:Connect(function()
 	end
 end)
 
--- VÒNG LẶP AUTO JUMP BHOP (CHỈ NHẢY KHI ĐANG DI CHUYỂN)
+-- VÒNG LẶP AUTO JUMP BHOP (KHÔNG BỊ XUNG ĐỘT NÚT NHẢY TAY)
 task.spawn(function()
+	local canJumpAgain = true
+	
 	while true do
-		task.wait(0.01)
+		task.wait(0.02) -- Tăng độ trễ nhẹ để tránh ghi đè nhịp nhảy thủ công
+		
 		if autoJumpActive then
 			pcall(function()
 				local char = LocalPlayer.Character
@@ -61,16 +64,21 @@ task.spawn(function()
 					local hrp = char:FindFirstChild("HumanoidRootPart")
 					
 					if humanoid and hrp and humanoid.Health > 0 then
-						-- Kiểm tra xem nhân vật có đang nhấn phím/cần gạt di chuyển không (MoveDirection > 0)
 						local isMoving = humanoid.MoveDirection.Magnitude > 0.1
+						local isOnGround = humanoid.FloorMaterial ~= Enum.Material.Air
 						
-						if isMoving and humanoid.FloorMaterial ~= Enum.Material.Air then
-							humanoid.Jump = true
+						-- Chỉ kích hoạt nhảy đúng thời điểm vừa tiếp đất và đang di chuyển
+						if isMoving and isOnGround and canJumpAgain then
+							canJumpAgain = false
 							humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+							task.wait(0.1)
+							canJumpAgain = true
 						end
 					end
 				end
 			end)
+		else
+			canJumpAgain = true
 		end
 	end
 end)
